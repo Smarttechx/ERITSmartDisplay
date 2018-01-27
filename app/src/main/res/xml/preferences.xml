@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/network">
+
+        <SwitchPreference
+            android:defaultValue="@bool/auto_turn_on_wifi"
+            android:key="@string/auto_turn_on_wifi_key"
+            android:summaryOff="@string/auto_turn_on_wifi_sum_off"
+            android:summaryOn="@string/auto_turn_on_wifi_sum_on"
+            android:title="@string/auto_turn_on_wifi_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/authentication">
+        <Preference
+            android:title="Change Password"
+            />
+        <!--TODO Add intent to change the password-->
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

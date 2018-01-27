@@ -1,0 +1,110 @@
+<resources>
+    <string name="app_name">ERIT Smart Display</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="www_erit_com_ng"><a href="http://google.com"> www.erit.com.ng </a></string>
+    <string name="electrohyve_research_institute_of_technology">Electrohyve Research Institute of Technology</string>
+    <string name="home">Home</string>
+    <string name="about">About</string>
+    <string name="settings">Settings</string>
+    <string name="communicate">Communicate</string>
+    <string name="share">Share</string>
+    <string name="action_resturant">Eatery</string>
+    <string name="action_filling_station">Filling Station</string>
+    <string name="action_custom">Custom Display</string>
+    <string name="erit_logo">Erit Logo</string>
+    <string name="add">Add</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="overflow_menu_for_display">Overflow menu for the current display</string>
+    <string name="display_avatar">Display Avatar</string>
+    <string name="title_activity_add_new_display">Add new Board</string>
+    <string name="what_do_you_want_to_call_this_board">What do you want to call this board?</string>
+    <string name="board_ip_prompt">Enter the IP Address of this Display</string>
+    <string name="action_save">Save</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="sort_order">Sort Order</string>
+    <string name="sort_default">Default</string>
+    <string name="sort_by_name">Name</string>
+
+
+    <string name="sort_order_summary">Choose how the home screen items are displayed</string>
+    <string name="sort_by">Sort by:</string>
+    <string name="sort_key">sort_key</string>
+
+
+    <string name="action_about">About</string>
+    <string name="select_message">Select the Message</string>
+    <string name="enter_the_message">Enter Message </string>
+    <string name="message_x">Message %1$d</string>
+    <string name="price_board">Price Board</string>
+    <string name="syncing">Syncing…</string>
+    <string name="saving">Saving…</string>
+    <string name="loading">Loading…</string>
+    <string name="your_data_is_syncing">Your data is syncing…</string>
+    <string name="your_data_is_saving">Your data is saving…</string>
+    <string name="done">Done!</string>
+    <string name="pms">PMS</string>
+    <string name="dpk">DPK</string>
+    <string name="ago">AGO</string>
+    <string name="zeros">00</string>
+    <string name="zeros_three">000</string>
+    <string name="select_the_number_of_messages_title">Number of Messages</string>
+    <string name="number_of_messages_summary">Enter the number of messages in your display board</string>
+    <string name="board_settings">Board Settings</string>
+    <string name="board_configuration">Configuration</string>
+    <string name="BRT_value">BRT Value</string>
+    <string name="set_BRT_value">BRT Value: %1$d</string>
+    <string name="adjust_brightness">Adjust the Brightness</string>
+    <string name="SPD_value">SPD Value</string>
+    <string name="set_SPD_value">SPD Value: %1$d</string>
+    <string name="adjust_speed">Adjust the Speed</string>
+    <string name="INV_value">INV Value</string>
+    <item name="visible" type="id" />
+    <item name="masked" type="id" />
+    <string name="set_INV">Set the INV value</string>
+    <string name="board_serial_number">Board Serial Number</string>
+    <string name="key_spd">spd</string>
+    <string name="key_brt">brt</string>
+    <string name="key_inv">inv</string>
+    <string name="key_number_of_msgs">number_of_messages</string>
+    <string name="key_serial">serial</string>
+    <string name="unknown_uri">Unknown Uri</string>
+    <string name="content_of_message">Content of Message</string>
+    <string name="allow_title">Allow Permisson</string>
+    <string name="allow_message">This app needs the permission to modify the system\'s settings in order to create hotspot</string>
+    <string name="yes">Allow</string>
+    <string name="noo">Cancel</string>
+    <string name="save">Save</string>
+    <string name="action_sync">Sync</string>
+    <string name="dialog_next">Next</string>
+    <string name="dialog_done">Done</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="spinner_toast_select_one_type">You should select one type</string>
+    <string name="spinner_toast_select_one_type_show_msg">You should select one type and enter number of messages if require</string>
+    <string name="number_of_messages">Number of Messages</string>
+    <string name="number">Number</string>
+    <string name="device">Available display boards</string>
+    <string name="add_new_baord">Add a new Display Board</string>
+    <string name="edit_boad">Edit your Display Board</string>
+    <string name="open_with">Open with…</string>
+    <string name="temp_saved">Temporarily Saved</string>
+    <string name="the_list_is_empty_image">The list is empty image</string>
+    <string name="it_s_lonely_here_n_you_might_want_to_add_a_new_display_board">It\'s lonely here \n You might want to add a new display board</string>
+    <string name="auto_turn_on_wifi_key" translatable="false">turn_on_key</string>
+    <string name="auto_turn_on_wifi_sum_on">Enabled</string>
+    <string name="auto_turn_on_wifi_sum_off">Disabled</string>
+    <string name="auto_turn_on_wifi_title">Turn on Hotspot automatically</string>
+    <string name="network">Network</string>
+    <string name="board">Appearance</string>
+    <string name="authentication">Authentication</string>
+    <string name="display">Display</string>
+    <string name="debug">Debug Control Card</string>
+    <string name="dashboard">DashBoard</string>
+
+</resources>
