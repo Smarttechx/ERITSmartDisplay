@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kryptkode.cyberman.eritsmartdisplay">
+    package="com.softdev.smarttechx.eritsmartdisplay">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme"
         android:configChanges="screenLayout|orientation|screenSize">
         <activity
-            android:name=".EritSmartDisplayActivity"
+            android:name="com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity"
             android:label="@string/app_name"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:theme="@style/AppTheme.NoActionBar"
@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SplashScreen"
+            android:name="com.softdev.smarttechx.eritsmartdisplay.SplashScreen"
             android:theme="@style/MyTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,15 +36,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailActivity"
-            android:parentActivityName=".EritSmartDisplayActivity"
+        <activity android:name="com.softdev.smarttechx.eritsmartdisplay.DetailActivity"
+            android:parentActivityName="com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity"
             android:configChanges="screenLayout|orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kryptkode.cyberman.eritsmartdisplay.EritSmartDisplayActivity" />
+                android:value="com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity" />
         </activity>
 
-        <activity android:name=".DisplayListActivity"
+        <activity android:name="com.softdev.smarttechx.eritsmartdisplay.DisplayListActivity"
             android:configChanges="screenLayout|orientation|screenSize">
         </activity>
     </application>

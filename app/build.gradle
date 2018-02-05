@@ -4,7 +4,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion '25.0.0'
     defaultConfig {
-        applicationId "com.kryptkode.cyberman.eritsmartdisplay"
+        applicationId "com.softdev.cyberman.eritsmartdisplay"
         minSdkVersion 14
         targetSdkVersion 25
         versionCode 1

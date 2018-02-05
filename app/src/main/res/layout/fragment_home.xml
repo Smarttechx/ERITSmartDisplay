@@ -4,7 +4,7 @@
     android:id="@+id/home_root"
     android:layout_height="match_parent">
 
-    <com.kryptkode.cyberman.eritsmartdisplay.views.EmptyRecyclerView
+    <com.softdev.smarttechx.eritsmartdisplay.views.EmptyRecyclerView
         android:id="@+id/home_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
