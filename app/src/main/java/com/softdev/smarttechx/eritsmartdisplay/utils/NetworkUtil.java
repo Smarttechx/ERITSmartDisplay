@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
+import com.softdev.smarttechx.eritsmartdisplay.models.DigitalClockBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard;
 
@@ -91,6 +92,19 @@ public abstract class NetworkUtil extends Context {
         Uri.Builder builder = Uri.parse(HTTP + customBoard.getIpAddress() ).buildUpon()
                 .appendPath(BOARD_TYPE);
             builder.appendPath(String.valueOf(customBoard.getCustomBoardCode())+String.valueOf(customBoard.getFormat()));
+        try{
+            url = new URL(builder.toString()).toString();
+        } catch (MalformedURLException | NullPointerException e){
+            e.printStackTrace();
+        }
+        return url;
+    }
+
+    public static String builddClockBoardConfigUrl(DigitalClockBoard dClockBoard){
+        String url = null;
+        Uri.Builder builder = Uri.parse(HTTP + dClockBoard.getIpAddress() ).buildUpon()
+                .appendPath(BOARD_TYPE);
+        builder.appendPath(String.valueOf(dClockBoard.getDigitalClockCode())+String.valueOf(dClockBoard.getFormat()));
         try{
             url = new URL(builder.toString()).toString();
         } catch (MalformedURLException | NullPointerException e){

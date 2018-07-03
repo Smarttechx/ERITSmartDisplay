@@ -15,6 +15,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_add_digital_clock_display"
+        android:orderInCategory="3"
+        android:title="@string/action_digital_clock"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_add_custom_display"
         android:orderInCategory="3"
         android:title="@string/action_custom"

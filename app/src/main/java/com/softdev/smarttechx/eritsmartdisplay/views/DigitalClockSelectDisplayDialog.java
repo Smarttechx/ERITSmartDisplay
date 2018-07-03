@@ -23,21 +23,22 @@ import android.widget.Toast;
 
 import com.softdev.smarttechx.eritsmartdisplay.R;
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
+import com.softdev.smarttechx.eritsmartdisplay.models.DigitalClockBoard;
 import com.softdev.smarttechx.eritsmartdisplay.utils.GsonUtil;
 
 /**
  * Created by SMARTTECHX on 10/20/2017.
  */
 
-public class CustomSelectDisplayDialog extends DialogFragment implements TextWatcher, AdapterView.OnItemSelectedListener {
+public class DigitalClockSelectDisplayDialog extends DialogFragment implements TextWatcher, AdapterView.OnItemSelectedListener {
     public static final String IS_IN_EDIT_MODE_KEY = "positive_button";
-    public static final String CustomBOARD_KEY = "Customboard_key";
-    private SelectCustomDisplayDialogListener listener;
+    public static final String digitalClockBOARD_KEY = "Customboard_key";
+    private SelectDigitalClockDisplayDialogListener listener;
 
     private AlertDialog dialog;
     private TextInputEditText nameTextInputEditText;
     private TextInputEditText ipAddressTextInputEditText;
-    private CustomBoard customBoard;
+    private DigitalClockBoard dClockBoard;
     private AppCompatSpinner appCompatSpinner;
     private String name, ipAddress, noOfMsg;
     private boolean hasUserSelected;
@@ -46,20 +47,20 @@ public class CustomSelectDisplayDialog extends DialogFragment implements TextWat
 
     private boolean isEditing;
 
-    public static CustomSelectDisplayDialog getInstance(CustomBoard customBoard, boolean isEditing) {
-        CustomSelectDisplayDialog editCustomBoard = new CustomSelectDisplayDialog();
-        String putCustom = GsonUtil.getGsonparser().toJson(customBoard);
+    public static DigitalClockSelectDisplayDialog getInstance(DigitalClockBoard DClockBoard, boolean isEditing) {
+        DigitalClockSelectDisplayDialog editCustomBoard = new DigitalClockSelectDisplayDialog();
+        String putCustom = GsonUtil.getGsonparser().toJson(DClockBoard);
         Bundle bundle = new Bundle();
         bundle.putBoolean(IS_IN_EDIT_MODE_KEY, isEditing);
-        bundle.putString(CustomBOARD_KEY, putCustom);
+        bundle.putString(digitalClockBOARD_KEY, putCustom);
         //bundle.putSerializable(CustomBOARD_KEY, customBoard);
         editCustomBoard.setArguments(bundle);
         return editCustomBoard;
     }
 
-    public interface SelectCustomDisplayDialogListener {
+    public interface SelectDigitalClockDisplayDialogListener {
 
-        void onCustomPositiveButtonClicked(DialogFragment dialog, CustomBoard customBoard, boolean isEditing);
+        void onDigitalClockPositiveButtonClicked(DialogFragment dialog, DigitalClockBoard digitalClockBoard, boolean isEditing);
     }
 
 
@@ -67,7 +68,7 @@ public class CustomSelectDisplayDialog extends DialogFragment implements TextWat
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (position > 0) {
             try {
-                customBoard.setCustomBoardType(CustomBoard.getCustomBoardTypeFromInt(position));
+                dClockBoard.setDigitalClockType(DigitalClockBoard.getDigitalClockTypeFromInt(position));
                 hasUserSelected = true;
 
             } catch (Exception e) {
@@ -92,10 +93,10 @@ public class CustomSelectDisplayDialog extends DialogFragment implements TextWat
         super.onAttach(context);
 
         try {
-            listener = (SelectCustomDisplayDialogListener) context;
+            listener = (SelectDigitalClockDisplayDialogListener) context;
         } catch (ClassCastException e) {
             e.printStackTrace();
-            throw new ClassCastException(context.toString() + "must implement CustomDialogListener");
+            throw new ClassCastException(context.toString() + "must implement DigitalClockDialogListener");
         }
     }
 
@@ -111,11 +112,11 @@ public class CustomSelectDisplayDialog extends DialogFragment implements TextWat
         super.onCreate(savedInstanceState);
 
         Bundle bundle = getArguments();
-        String getCustom = bundle.getString(CustomBOARD_KEY);
+        String getCustom = bundle.getString(digitalClockBOARD_KEY);
         isEditing = bundle.getBoolean(IS_IN_EDIT_MODE_KEY);
-        customBoard = GsonUtil.getGsonparser().fromJson(getCustom, CustomBoard.class);
-        name = customBoard.getName();
-        ipAddress = customBoard.getIpAddress();
+        dClockBoard = GsonUtil.getGsonparser().fromJson(getCustom, DigitalClockBoard.class);
+        name = dClockBoard.getName();
+        ipAddress = dClockBoard.getIpAddress();
 
     }
 
@@ -123,14 +124,14 @@ public class CustomSelectDisplayDialog extends DialogFragment implements TextWat
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View view = layoutInflater.inflate(R.layout.dialog_custom_spinner, null);
+        View view = layoutInflater.inflate(R.layout.dialog_dClock_spinner, null);
         nameTextInputEditText = (TextInputEditText) view.findViewById(R.id.add_boardName_et);
         ipAddressTextInputEditText = (TextInputEditText) view.findViewById(R.id.add_ip_et);
-        appCompatSpinner = (AppCompatSpinner) view.findViewById(R.id.dialog_custom_board_spinner);
+        appCompatSpinner = (AppCompatSpinner) view.findViewById(R.id.dialog_dClock_board_spinner);
         memoFormat = (CheckBox) view.findViewById(R.id.checkMemoFormat);
         ipAddressTextInputEditText.addTextChangedListener(this);
         appCompatSpinner.setOnItemSelectedListener(this);
-        customBoard = new CustomBoard();
+        dClockBoard = new DigitalClockBoard();
         InputFilter[] filters = new InputFilter[1];
         filters[0] = new InputFilter() {
             @Override
@@ -180,11 +181,11 @@ public class CustomSelectDisplayDialog extends DialogFragment implements TextWat
                     if (hasUserSelected == false) {
                         Toast.makeText(getActivity().getApplicationContext(), "Board not saved, pls select a Board type", Toast.LENGTH_SHORT).show();
                     } else {
-                        customBoard.setName(nameTextInputEditText.getText().toString());
-                        customBoard.setIpAddress(ipAddressTextInputEditText.getText().toString());
-                        customBoard.setNoOfMsg("8");
-                        customBoard.setFormat(formatValue);
-                        listener.onCustomPositiveButtonClicked(CustomSelectDisplayDialog.this, customBoard, isEditing);
+                        dClockBoard.setName(nameTextInputEditText.getText().toString());
+                        dClockBoard.setIpAddress(ipAddressTextInputEditText.getText().toString());
+//                        dClockBoard.setNoOfMsg("8");
+                        dClockBoard.setFormat(formatValue);
+                        listener.onDigitalClockPositiveButtonClicked(DigitalClockSelectDisplayDialog.this, dClockBoard, isEditing);
                     }
                 } catch (Exception e) {
                     Toast.makeText(getActivity().getApplicationContext(), "Board not saved, pls select a Board type", Toast.LENGTH_SHORT).show();
@@ -200,11 +201,11 @@ public class CustomSelectDisplayDialog extends DialogFragment implements TextWat
                         if (hasUserSelected == false) {
                             Toast.makeText(getActivity().getApplicationContext(), "Board not saved, pls select a Board type", Toast.LENGTH_SHORT).show();
                         } else {
-                            customBoard.setName(nameTextInputEditText.getText().toString());
-                            customBoard.setIpAddress(ipAddressTextInputEditText.getText().toString());
-                            customBoard.setNoOfMsg("8");
-                            customBoard.setFormat(formatValue);
-                            listener.onCustomPositiveButtonClicked(CustomSelectDisplayDialog.this, customBoard, isEditing);
+                            dClockBoard.setName(nameTextInputEditText.getText().toString());
+                            dClockBoard.setIpAddress(ipAddressTextInputEditText.getText().toString());
+                          //  customBoard.setNoOfMsg("8");
+                            dClockBoard.setFormat(formatValue);
+                            listener.onDigitalClockPositiveButtonClicked(DigitalClockSelectDisplayDialog.this, dClockBoard, isEditing);
                         }
                     } catch (Exception e) {
                         Toast.makeText(getActivity().getApplicationContext(), "Board not saved, pls select a Board type", Toast.LENGTH_SHORT).show();

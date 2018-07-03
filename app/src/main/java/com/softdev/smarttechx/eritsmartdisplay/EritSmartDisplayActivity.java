@@ -17,12 +17,14 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.softdev.smarttechx.eritsmartdisplay.adapters.HomeAdapter;
 import com.softdev.smarttechx.eritsmartdisplay.data.SmartDisplayDB;
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
+import com.softdev.smarttechx.eritsmartdisplay.models.DigitalClockBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
@@ -30,6 +32,7 @@ import com.softdev.smarttechx.eritsmartdisplay.utils.HttpConnection;
 import com.softdev.smarttechx.eritsmartdisplay.utils.NetworkUtil;
 import com.softdev.smarttechx.eritsmartdisplay.utils.WifiHotspot;
 import com.softdev.smarttechx.eritsmartdisplay.views.CustomSelectDisplayDialog;
+import com.softdev.smarttechx.eritsmartdisplay.views.DigitalClockSelectDisplayDialog;
 import com.softdev.smarttechx.eritsmartdisplay.views.MessageSelectDisplayDialog;
 import com.softdev.smarttechx.eritsmartdisplay.views.PriceSelectDisplayDialog;
 
@@ -38,7 +41,7 @@ import java.util.ArrayList;
 
 public class EritSmartDisplayActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, HomeFragment.HomeFragmentListener, PriceSelectDisplayDialog.PriceSelectDisplayDialogListener,
-        MessageSelectDisplayDialog.SelectDisplayDialogListener, CustomSelectDisplayDialog.SelectCustomDisplayDialogListener {
+        MessageSelectDisplayDialog.SelectDisplayDialogListener, CustomSelectDisplayDialog.SelectCustomDisplayDialogListener, DigitalClockSelectDisplayDialog.SelectDigitalClockDisplayDialogListener {
     public static final String TAG = EritSmartDisplayActivity.class.getSimpleName();
     public static final String POSITION_KEY = "position";
     public static final String FRAG_TAG = "frag";
@@ -47,6 +50,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     public static final String PRICE = "priceBoard";
     public static final String MESSAGE = "msgBoard";
     public static final String CUSTOM = "customBoard";
+    public static final String DIGITAL = "digitalclockBoard";
     private int currentPosition;
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
@@ -54,6 +58,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     private HomeFragment homeFragment;
     private PriceBoard priceBoard;
     private MessageBoard msgBoard;
+    private DigitalClockBoard dClockBoard;
     String title;
     private CustomBoard customBoard;
     private WifiHotspot wifiHotspot;
@@ -63,6 +68,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     ArrayList<SmartDisplay> smartBoardList;
     int ID;
     SharedPreferences Gp;
+    private WifiHotspot mHotSpot;
     private HomeAdapter homeAdapter;
 
 
@@ -80,6 +86,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setTitle(title);
         }
+        mHotSpot = new WifiHotspot(this);
         homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HOME_TAG);
         //display the home fragment
         if (homeFragment == null) {
@@ -371,6 +378,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     private void updateMsgBoard() {
         HttpConnection httpconnection = new HttpConnection();
         httpconnection.execute(NetworkUtil.buildMessageBoardConfigUrl(msgBoard));
+        //Toast.makeText(this, NetworkUtil.buildMessageBoardConfigUrl(msgBoard).toString(), Toast.LENGTH_SHORT).show();
         smartBoardList.get(msgBoard.getId()).setMsgBoard(msgBoard);
         displayDB.saveDisplays(smartBoardList);
         homeAdapter.notifyDataSetChanged();
@@ -401,7 +409,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     }
 
     private void updateCustomBoard() {
-        Toast.makeText(this, NetworkUtil.buildCustomBoardConfigUrl(customBoard), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, NetworkUtil.buildCustomBoardConfigUrl(customBoard), Toast.LENGTH_SHORT).show();
         HttpConnection httpconnection = new HttpConnection();
         httpconnection.execute(NetworkUtil.buildCustomBoardConfigUrl(customBoard));
         smartBoardList.get(customBoard.getId()).setCustomBoard(customBoard);
@@ -410,6 +418,57 @@ public class EritSmartDisplayActivity extends AppCompatActivity
         Fragment fragment = HomeFragment.getInstance();
         displayFragment(fragment);
 
+    }
+
+
+    @Override
+    public void onDigitalClockPositiveButtonClicked(DialogFragment dialog, DigitalClockBoard dClockBoard, boolean isEditing) {
+        this.dClockBoard = dClockBoard;
+        if (isEditing) {
+            updateDClockBoard();
+        } else {
+            saveDClockBoard();
+        }
+        dialog.dismiss();
+    }
+
+    private void saveDClockBoard() {
+        HttpConnection httpconnection = new HttpConnection();
+        httpconnection.execute(NetworkUtil.builddClockBoardConfigUrl(dClockBoard));
+        //  Toast.makeText(this, NetworkUtil.buildCustomBoardConfigUrl(customBoard).toString(), Toast.LENGTH_SHORT).show();
+        displayBoard = new SmartDisplay(DIGITAL, dClockBoard);
+        smartBoardList.add(displayBoard);
+        displayDB.saveDisplays(smartBoardList);
+        Fragment fragment = HomeFragment.getInstance();
+        displayFragment(fragment);
+    }
+
+    private void updateDClockBoard() {
+        //Toast.makeText(this, NetworkUtil.buildCustomBoardConfigUrl(customBoard), Toast.LENGTH_SHORT).show();
+        HttpConnection httpconnection = new HttpConnection();
+        httpconnection.execute(NetworkUtil.builddClockBoardConfigUrl(dClockBoard));
+        smartBoardList.get(dClockBoard.getId()).setDigitalboardBoard(dClockBoard);
+        displayDB.saveDisplays(smartBoardList);
+        homeAdapter.notifyDataSetChanged();
+        Fragment fragment = HomeFragment.getInstance();
+        displayFragment(fragment);
+
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            mHotSpot.startHotSpot(false);
+            Intent exit = new Intent(Intent.ACTION_MAIN);
+            exit.addCategory(Intent.CATEGORY_HOME);
+            exit.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            exit.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(exit);
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(0);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 }

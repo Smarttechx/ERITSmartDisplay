@@ -3,6 +3,7 @@ package com.softdev.smarttechx.eritsmartdisplay.models;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.TreeMap;
 
@@ -19,7 +20,8 @@ import static com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard.PMS;
 public class DisplayBoardHelpers {
     public static final int PRICE_BOARD_DEC = 50;
     public static final int MESSAGE_BOARD_DEC = 100;
-    public static final int CUSTOMIZE_BOARD_DEC = 150;
+    public static final int DIGITALCLOCK_BOARD_DEC = 150;
+    public static final int CUSTOMIZE_BOARD_DEC = 160;
     public static final String TAG = DisplayBoardHelpers.class.getSimpleName();
     Context context;
 
@@ -88,9 +90,18 @@ public class DisplayBoardHelpers {
     public static String createMessageSendFormat(TreeMap<String, String> messagesTreeMap) {
         String messages = "";
         for (String key : messagesTreeMap.keySet()) {
-
-            messages += key + " " + messagesTreeMap.get(key);
-
+            String msgTmap=messagesTreeMap.get(key);
+            messages += key + " " + msgTmap+"";
+           /* for(int i=1; i<=8;i++){
+                if(key.equals("//M"+String.valueOf(i))){
+                    messages += key + " " + msgTmap+" \n";
+                    break;
+                }
+                else{
+                    messages+="//M"+String.valueOf(i)+" "+ msgTmap+" \n";
+                }
+            }
+*/
         }
         return messages;
     }
@@ -108,6 +119,12 @@ public class DisplayBoardHelpers {
     public static String generateCustomizeBoardCode(CustomBoard.CustomBoardType customBoardType){
         Log.i(TAG, "generateCustomizeBoardCode: " + Integer.toHexString(CUSTOMIZE_BOARD_DEC + customBoardType.getNumberOfCascades()));
         return Integer.toHexString(CUSTOMIZE_BOARD_DEC  +customBoardType.getNumberOfCascades());
+    }
+
+
+    public static String generateDigitalClockBoardCode(DigitalClockBoard.DigitalClockType digitalclockBoardType){
+        Log.i(TAG, "generateDigitalClockBoardCode: " + Integer.toHexString(DIGITALCLOCK_BOARD_DEC + digitalclockBoardType.getNumberOfCascades()));
+        return Integer.toHexString(DIGITALCLOCK_BOARD_DEC  +digitalclockBoardType.getNumberOfCascades());
     }
 
 

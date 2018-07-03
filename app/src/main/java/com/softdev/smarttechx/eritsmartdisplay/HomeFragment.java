@@ -11,10 +11,12 @@ import android.support.v7.widget.PopupMenu;
 
 import com.softdev.smarttechx.eritsmartdisplay.data.SmartDisplayDB;
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
+import com.softdev.smarttechx.eritsmartdisplay.models.DigitalClockBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
 import com.softdev.smarttechx.eritsmartdisplay.utils.GsonUtil;
 import com.softdev.smarttechx.eritsmartdisplay.views.CustomSelectDisplayDialog;
+import com.softdev.smarttechx.eritsmartdisplay.views.DigitalClockSelectDisplayDialog;
 import com.softdev.smarttechx.eritsmartdisplay.views.EmptyRecyclerView;
 
 import android.util.Log;
@@ -34,6 +36,7 @@ import com.softdev.smarttechx.eritsmartdisplay.views.PriceSelectDisplayDialog;
 import java.util.ArrayList;
 
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.CUSTOM;
+import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.DIGITAL;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.MESSAGE;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.PRICE;
 
@@ -49,6 +52,7 @@ public class HomeFragment extends Fragment implements HomeAdapter.HomeAdapterLis
     private PriceBoard priceBoard;
     private MessageBoard msgBoard;
     private CustomBoard customBoard;
+    private DigitalClockBoard digitalClockBoard;
     private HomeFragmentListener homeFragmentListener;
     private SmartDisplayDB displayDB;
     ArrayList<SmartDisplay> smartBoardList;
@@ -205,6 +209,13 @@ public class HomeFragment extends Fragment implements HomeAdapter.HomeAdapterLis
                             CustomSelectDisplayDialog editCustomBoard = CustomSelectDisplayDialog.getInstance(customBoard, true);
                             editCustomBoard.setCancelable(false);
                             editCustomBoard.show(getChildFragmentManager(), "");
+                        }
+                        else if (displayBoard.getBoardType().equals(DIGITAL)) {
+                            digitalClockBoard = new DigitalClockBoard();
+                            digitalClockBoard = displayBoard.getDigitalBoardBoard();
+                            DigitalClockSelectDisplayDialog editdClockBoard = DigitalClockSelectDisplayDialog.getInstance(digitalClockBoard, true);
+                            editdClockBoard.setCancelable(false);
+                            editdClockBoard.show(getChildFragmentManager(), "");
                         }
                         return true;
 

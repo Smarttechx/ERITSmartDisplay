@@ -1,5 +1,6 @@
 package com.softdev.smarttechx.eritsmartdisplay;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,19 +28,24 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.DigitalClock;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
+import com.softdev.smarttechx.eritsmartdisplay.models.DigitalClockBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
+import com.softdev.smarttechx.eritsmartdisplay.utils.Connection;
 import com.softdev.smarttechx.eritsmartdisplay.utils.GsonUtil;
 import com.softdev.smarttechx.eritsmartdisplay.utils.HttpConnection;
+import com.softdev.smarttechx.eritsmartdisplay.utils.HttpRequestUtil;
 import com.softdev.smarttechx.eritsmartdisplay.utils.NumberAwareStringComparator;
 
 import java.io.BufferedReader;
@@ -47,7 +53,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,6 +65,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.CUSTOM;
+import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.DIGITAL;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.MESSAGE;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.PRICE;
 import static com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard.MSG;
@@ -97,6 +108,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
     private PriceBoard priceBoard;
     private CustomBoard customBoard;
     private MessageBoard msgBoard;
+    private DigitalClockBoard digitalclockBoard;
     private SmartDisplay smartDisplay;
     private int currentSelection;
     private int previousSelection;
@@ -112,10 +124,21 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
     String brtValue, spdValue;
 
     private LinearLayout settingLayout;
+
+    private LinearLayout price_msgLayout;
+
+    private LinearLayout settingviewLayout;
+
+    private DigitalClock mDigitalClock;
+    private  TextView mDateView;
+
+    private LinearLayout digitalclockLayout;
     private Switch settingSwitch;
     private CheckBox dateTime;
     Calendar getCal = Calendar.getInstance();
     SimpleDateFormat df = new SimpleDateFormat("*HH:mm:ss*dd/MM/yy*");
+    private static final String ALLOW_CHAR="";
+    private  String baseURL;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -138,7 +161,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
 
     public void saveMessage(int postion) {
         String key = MSG + String.valueOf(postion);
-        String text = messageEditText.getText().toString();
+        String text = messageEditText.getText().toString()+" ";
         messagesTreeMap.put(key, text);
         DetailFragmentHelper.dismissKeyboard(getContext(), getView());
         if (!isFirstSelection) {
@@ -148,7 +171,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
 
     public void saveSyncMessage(int postion, String msg) {
         String key = MSG + String.valueOf(postion);
-        String text = msg;
+        String text = msg+" ";
         messagesTreeMap.put(key, text);
         DetailFragmentHelper.dismissKeyboard(getContext(), getView());
     }
@@ -220,6 +243,11 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             customBoard = new CustomBoard();
             customBoard = smartDisplay.getCustomBoard();
         }
+        else if (smartDisplay.getBoardType().equals(DIGITAL)) {
+            digitalclockBoard = new DigitalClockBoard();
+            digitalclockBoard = smartDisplay.getDigitalBoardBoard();
+        }
+
     }
 
     @Override
@@ -250,13 +278,19 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         invSwitch = (Switch) view.findViewById(R.id.switchinv);
         msgLayout = (LinearLayout) view.findViewById(R.id.msgView);
         settingLayout = (LinearLayout) view.findViewById(R.id.settingLayout);
+        settingviewLayout = (LinearLayout) view.findViewById(R.id.setting_view);
+        price_msgLayout = (LinearLayout) view.findViewById(R.id.price_msg_view);
+        digitalclockLayout = (LinearLayout) view.findViewById(R.id.digitalclockView);
         settingSwitch = (Switch) view.findViewById(R.id.switchSetting);
+        digitalclockLayout.setVisibility(View.GONE);
 
         priceRoot = (RelativeLayout) view.findViewById(R.id.price_root);
         messagesSpinner.setOnItemSelectedListener(spinnerItemSelectedListener);
         messageEditText.setOnEditorActionListener(this);
         messageEditText.addTextChangedListener(this);
         messageEditText.setImeActionLabel(getString(R.string.save), EditorInfo.IME_ACTION_DONE);
+        mDigitalClock =(DigitalClock)view.findViewById(R.id.simpleDigitalClock);
+        mDateView=(TextView)view.findViewById(R.id.dateView);
 
         loadingIndicatorProgressBar = (ProgressBar) view.findViewById(R.id.loading_indicator);
         loadingIndicatorTextView = (TextView) view.findViewById(R.id.tv_loading);
@@ -268,7 +302,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         settingLayout.setVisibility(View.GONE);
         settingSwitch.setChecked(false);
         invSwitch.setChecked(false);
-        dateTime.setChecked(true);
+        dateTime.setChecked(false);
         dateTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -325,6 +359,12 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         }
 
         sync();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sync();
+            }
+        }, 500);
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -390,32 +430,59 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
                 if (priceBoard != null) {
                     priceBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
                     priceBoard.setPriceValuesMap(createPriceTreeMap());
+                    baseURL="http://" + priceBoard.getIpAddress();
                     if (priceMSgNo > 0) {
                         priceBoard.setMsgsMap(messagesTreeMap);
-                        data = "http://" + priceBoard.getIpAddress() + "/writeDisplay" + priceBoard.createMessageSendFormat()
+                        data = "/writeDisplay"+ priceBoard.createMessageSendFormat()
                                 + priceBoard.createPriceSendFormat() + "//ST" + priceBoard.getBSI() + "//TD" + formatTimeDate;
                     } else {
-                        data = "http://" + priceBoard.getIpAddress() + "/writeDisplay" + priceBoard.createPriceSendFormat() + "//ST" + priceBoard.getBSI() + "//TD" + formatTimeDate;
+                        data = "/writeDisplay"+priceBoard.createPriceSendFormat() + "//ST" + priceBoard.getBSI() + "//TD" + formatTimeDate;
                     }
+
                 }
                 if (msgBoard != null) {
                     msgBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
                     msgBoard.setMessagesMap(messagesTreeMap);
-                    data = "http://" + msgBoard.getIpAddress() + "/writeDisplay" + msgBoard.createMessageSendFormat() + "//ST" + msgBoard.getBSI() + "//TD" + formatTimeDate;
+                    baseURL="http://" + msgBoard.getIpAddress();
+                    data =  "/writeDisplay"+msgBoard.createMessageSendFormat() + "//ST" + msgBoard.getBSI() + "//TD" + formatTimeDate;
                     //DetailFragmentHelper.saveMessages(getContext(), priceBoard);
                 }
                 if (customBoard != null) {
                     customBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
                     customBoard.setCustomMap(messagesTreeMap);
-                    data = "http://" + customBoard.getIpAddress() + "/writeDisplay" + customBoard.createMessageSendFormat() + "//ST" + customBoard.getBSI() + "//TD" + formatTimeDate;
+                    baseURL="http://" + customBoard.getIpAddress();
+                    data = "/writeDisplay"+customBoard.createMessageSendFormat() + "//ST" + customBoard.getBSI() + "//TD" + formatTimeDate;
+                    //DetailFragmentHelper.saveMessages(getContext(), priceBoard);
+                }
+                if (digitalclockBoard != null) {
+                    digitalclockBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
+                    baseURL="http://" + digitalclockBoard.getIpAddress();
+                    formatTimeDate = df.format(getCal.getTime());
+                    data = "/writeDisplay"+"//ST" + digitalclockBoard.getBSI() + "//TD" + formatTimeDate;
                     //DetailFragmentHelper.saveMessages(getContext(), priceBoard);
                 }
                 data=data.trim();
                 data=data.replaceAll("\\s+", " ");
-                HttpConnection httpconnection = new HttpConnection();
-                httpconnection.execute(data);
-                //Toast.makeText(getContext(), data, Toast.LENGTH_LONG).show();
-                Snackbar.make(getView().findViewById(R.id.fragment_root), "Saving...", Snackbar.LENGTH_LONG).show();
+                if(digitalclockBoard==null){
+                    for (int j = 1; j <= 8; j++) {
+                        if (j < 8) {
+                            if(data.contains("//M" + String.valueOf(j))){
+                                data = data.replace("//M" + String.valueOf(j+1)," //M" + String.valueOf(j+1));
+                            }
+                            else if(!data.contains("//M" + String.valueOf(j))){
+                                data=data+" //M" + String.valueOf(j);
+                            }
+                        }
+                    }
+                }
+
+
+             /*   Connection postData= new Connection();
+                postData.ByPostMethod(baseURL,data);*/
+
+                 HttpRequestUtil httpconnection = new HttpRequestUtil();
+                 httpconnection.execute(baseURL+ "POST "+data,"POST "+data);
+                 Snackbar.make(getView().findViewById(R.id.fragment_root), "Saving...", Snackbar.LENGTH_LONG).show();
 
                 //TODO Implement send
                 //Use the Connection.java class and the NetworkUtils.java classes
@@ -508,6 +575,14 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             messagesSpinner.setAdapter(adapter);
             messagesSpinner.setSelection(currentSelection, true);
         }
+        else if(digitalclockBoard!=null){
+            price_msgLayout.setVisibility(View.GONE);
+            digitalclockLayout.setVisibility(View.VISIBLE);
+            long date = System.currentTimeMillis();
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM MM dd, yyyy");
+            String dateString = sdf.format(date);
+            mDateView.setText(dateString);
+        }
     }
 
     AdapterView.OnItemSelectedListener spinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
@@ -580,12 +655,11 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         return priceValuesTreeMap;
     }
 
-    private TreeMap<String, String> syncPriceTreeMap(String pmsData, String dpkData, String agoData) {
+    private TreeMap<String, String> syncPriceTreeMap(String pmsData, String agoData,String dpkData) {
         TreeMap<String, String> priceValuesTreeMap = new TreeMap<>();
+        priceValuesTreeMap.put(PMS, pmsData);
         priceValuesTreeMap.put(AGO, agoData);
         priceValuesTreeMap.put(DPK, dpkData);
-        priceValuesTreeMap.put(PMS, pmsData);
-
         return priceValuesTreeMap;
     }
 
@@ -669,7 +743,20 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             String ps = "";
             try{
                 result=result.trim();
-                result=result.replaceAll("\\s+", " ");
+                 try{
+                    result= URLDecoder.decode(result);
+                    Log.d("Smartdisplay",result);
+                }catch (Exception e){
+
+                }
+                if(result.contains("�")){
+                     result=result.replace("�","").trim();
+                }
+                if(result.contains("\u0010")){
+                    result=result.replace("\u0010","").trim();
+                }
+                Log.d("Smartdisplay",result);
+              // Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_SHORT).show();
             }catch (Exception e){
 
             }
@@ -694,18 +781,30 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
                                 }
                                 ptr = result.indexOf("//PS");
                                 if ((ptr != -1) && (ptr1 != -1)) {
-                                    ps = result.substring(ptr + 4, ptr + 7) + result.substring(ptr + 7, ptr + 10) + " ";
+                                    ps = result.substring(ptr + 4, ptr + 6) + result.substring(ptr + 6, ptr + 10) + " ";
                                     // Toast.makeText(getActivity().getApplicationContext(), ps, Toast.LENGTH_SHORT).show();
+                                    if(ps.contains("/")){
+                                        ps=ps.replace("/","0");
+                                    }
+                                    Log.d("Smartdisplay",ps);
                                 }
 
                                 ptr = result.indexOf("//AG");
                                 if ((ptr != -1) && (ptr1 != -1)) {
-                                    ag = result.substring(ptr + 4, ptr + 7) + result.substring(ptr + 7, ptr + 10) + " ";
+                                    ag = result.substring(ptr + 4, ptr + 6) + result.substring(ptr + 6, ptr + 10) + " ";
+                                    if(ag.contains("/")){
+                                        ag=ag.replace("/","0");
+                                    }
+                                    Log.d("Smartdisplay",ag);
                                 }
 
                                 ptr = result.indexOf("//DP");
                                 if ((ptr != -1) && (ptr1 != -1)) {
-                                    dp = result.substring(ptr + 4, ptr + 7) + result.substring(ptr + 7, ptr + 10) + " ";
+                                    dp = result.substring(ptr + 4, ptr + 6) + result.substring(ptr + 6, ptr + 10) + " ";
+                                    if(dp.contains("/")){
+                                        dp=dp.replace("/","0");
+                                    }
+                                    Log.d("Smartdisplay",dp);
                                 }
                                 priceBoard.setPriceValuesMap(syncPriceTreeMap(ps, ag, dp));
                                 decodePriceTreeMap(syncPriceTreeMap(ps, ag, dp));
@@ -747,17 +846,26 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
                         ptr1 = result.indexOf("//PS");
                         ptr = result.indexOf("//PS");
                         if ((ptr != -1) && (ptr1 != -1)) {
-                            ps = result.substring(ptr + 4, ptr + 7) + result.substring(ptr + 7, ptr + 10) + " ";
+                            ps = result.substring(ptr + 4, ptr + 6) + result.substring(ptr + 6, ptr + 10) + " ";
+                            if(ps.contains("/")){
+                                ps=ps.replace("/","0");
+                            }
                         }
 
                         ptr = result.indexOf("//AG");
                         if ((ptr != -1) && (ptr1 != -1)) {
-                            ag = result.substring(ptr + 4, ptr + 7) + result.substring(ptr + 7, ptr + 10) + " ";
+                            ag = result.substring(ptr + 4, ptr + 6) + result.substring(ptr +6, ptr + 10) + " ";
+                            if(ag.contains("/")){
+                                ag=ag.replace("/","0");
+                            }
                         }
 
                         ptr = result.indexOf("//DP");
                         if ((ptr != -1) && (ptr1 != -1)) {
-                            dp = result.substring(ptr + 4, ptr + 7) + result.substring(ptr + 7, ptr + 10) + " ";
+                            dp = result.substring(ptr + 4, ptr + 6) + result.substring(ptr + 6, ptr + 10) + " ";
+                            if(dp.contains("/")){
+                                dp=dp.replace("/","0");
+                            }
                         }
                         priceBoard.setPriceValuesMap(syncPriceTreeMap(ps, ag, dp));
                         decodePriceTreeMap(syncPriceTreeMap(ps, ag, dp));
