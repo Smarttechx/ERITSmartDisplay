@@ -3,6 +3,7 @@ package com.softdev.smarttechx.eritsmartdisplay.utils;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static java.security.AccessController.getContext;
 
 /**
  * Created by SMARTTECHX on 9/12/2017.
@@ -18,26 +20,8 @@ import java.net.URL;
 
 public class HttpConnection extends AsyncTask<String, Void, String> {
 
-        Context context;
-        String msg="";
-        @Override
-        protected String doInBackground(String... urls) {
 
-            return GET(urls[0]);
-        }
-        // onPostExecute displays the results of the AsyncTask.
-
-
-        @Override
-        protected void onPostExecute(String result) {
-		super.onPostExecute(result);
-            Log.d("msgfromboard", result);
-            setMessageFromBoard(result);
-        }
-
-
-
-	  public static String GET(String url) {
+    public static String GET(String url) {
         InputStream inputStream = null;
         String result = "";
         try {
@@ -47,7 +31,7 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
             // make GET request to the given URL
             HttpURLConnection urlConnection = (HttpURLConnection) urlObj.openConnection();
 
-            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
             urlConnection.setConnectTimeout(30000);
             urlConnection.setReadTimeout(30000);
@@ -59,7 +43,6 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
             // convert inputstream to string
             if (inputStream != null)
                 result = convertInputStreamToString(inputStream);
-
             else
                 result = "Did not work!";
 
@@ -68,6 +51,20 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
         }
 
         return result;
+    }
+    // onPostExecute displays the results of the AsyncTask.
+
+    @Override
+    protected String doInBackground(String... urls) {
+
+        return GET(urls[0]);
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        super.onPostExecute(result);
+
+        //TODO get response from board to dB
     }
 
 
@@ -82,11 +79,4 @@ public class HttpConnection extends AsyncTask<String, Void, String> {
         return result;
 
     }
-
-    public  String getMessageFromBoard(){
-        return this.msg;
-    }
-	public void setMessageFromBoard(String resp){
-		this.msg=resp;
-	}
 }

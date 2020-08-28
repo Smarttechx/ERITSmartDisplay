@@ -114,7 +114,6 @@ public class CustomSelectDisplayDialog extends DialogFragment implements TextWat
         String getCustom = bundle.getString(CustomBOARD_KEY);
         isEditing = bundle.getBoolean(IS_IN_EDIT_MODE_KEY);
         customBoard = GsonUtil.getGsonparser().fromJson(getCustom, CustomBoard.class);
-        Toast.makeText(getActivity().getApplicationContext(), "onCreate " + customBoard.getName(), Toast.LENGTH_SHORT).show();
         name = customBoard.getName();
         ipAddress = customBoard.getIpAddress();
 

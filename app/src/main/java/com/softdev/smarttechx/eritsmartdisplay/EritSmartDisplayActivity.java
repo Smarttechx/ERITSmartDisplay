@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -63,6 +64,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     ArrayList<SmartDisplay> smartBoardList;
     int ID;
     SharedPreferences Gp;
+    private WifiHotspot mHotSpot;
     private HomeAdapter homeAdapter;
 
 
@@ -80,6 +82,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setTitle(title);
         }
+        mHotSpot = new WifiHotspot(this);
         homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HOME_TAG);
         //display the home fragment
         if (homeFragment == null) {
@@ -371,6 +374,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     private void updateMsgBoard() {
         HttpConnection httpconnection = new HttpConnection();
         httpconnection.execute(NetworkUtil.buildMessageBoardConfigUrl(msgBoard));
+        //Toast.makeText(this, NetworkUtil.buildMessageBoardConfigUrl(msgBoard).toString(), Toast.LENGTH_SHORT).show();
         smartBoardList.get(msgBoard.getId()).setMsgBoard(msgBoard);
         displayDB.saveDisplays(smartBoardList);
         homeAdapter.notifyDataSetChanged();
@@ -401,7 +405,7 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     }
 
     private void updateCustomBoard() {
-        Toast.makeText(this, NetworkUtil.buildCustomBoardConfigUrl(customBoard), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, NetworkUtil.buildCustomBoardConfigUrl(customBoard), Toast.LENGTH_SHORT).show();
         HttpConnection httpconnection = new HttpConnection();
         httpconnection.execute(NetworkUtil.buildCustomBoardConfigUrl(customBoard));
         smartBoardList.get(customBoard.getId()).setCustomBoard(customBoard);
@@ -410,6 +414,22 @@ public class EritSmartDisplayActivity extends AppCompatActivity
         Fragment fragment = HomeFragment.getInstance();
         displayFragment(fragment);
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            mHotSpot.startHotSpot(false);
+            Intent exit = new Intent(Intent.ACTION_MAIN);
+            exit.addCategory(Intent.CATEGORY_HOME);
+            exit.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            exit.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(exit);
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(0);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 }

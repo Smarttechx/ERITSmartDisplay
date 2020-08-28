@@ -20,7 +20,7 @@ public class WifiHotspot {
 
     public WifiHotspot(Context c) {
         mContext = c;
-        wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) mContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         mWifiInfo = wifiManager.getConnectionInfo();
 
     }
@@ -71,8 +71,24 @@ public class WifiHotspot {
 
     }
 
-    public boolean isHotspotOn(){
+    public boolean isHotspotOn() {
         return wifiManager.isWifiEnabled();
+    }
+
+    public boolean startHotSpot(boolean enable) {
+        wifiManager.setWifiEnabled(false);
+        Method[] mMethods = wifiManager.getClass().getDeclaredMethods();
+        for (Method mMethod : mMethods) {
+            if (mMethod.getName().equals("setWifiApEnabled")) {
+                try {
+                    mMethod.invoke(wifiManager, null, enable);
+                    return true;
+                } catch (Exception ex) {
+                }
+                break;
+            }
+        }
+        return false;
     }
 
 }

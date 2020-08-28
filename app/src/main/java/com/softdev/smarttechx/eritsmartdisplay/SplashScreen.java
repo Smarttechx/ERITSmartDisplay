@@ -16,6 +16,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 
+import com.softdev.smarttechx.eritsmartdisplay.utils.TaskkillService;
 import com.softdev.smarttechx.eritsmartdisplay.utils.WifiHotspot;
 
 public class SplashScreen extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Boolean>{
@@ -63,6 +64,7 @@ public class SplashScreen extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onStart(){
         super.onStart();
+        startService(new Intent(getBaseContext(), TaskkillService.class));
         registerReceiver(mSTReceiver, new IntentFilter(wifiIntent));
         createHotspot();
        /* if (hotspot.isHotspotOn()) {

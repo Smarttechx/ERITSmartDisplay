@@ -3,6 +3,7 @@ package com.softdev.smarttechx.eritsmartdisplay.models;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.TreeMap;
 
@@ -30,7 +31,7 @@ public class DisplayBoardHelpers {
             if (i == numOfMessagees) {
                 index1 = data.indexOf(MSG + i); // //M1
                 if (index1 != -1) {
-                    messagesMap.put(MSG + i, data.substring(index1 + 4, data.length()));
+                    messagesMap.put(MSG + i, data.substring(index1 + 4));
                     Log.i(TAG, "parseMessageString: " + index1);
                     Log.i(TAG, "parseMessageString: " + messagesMap.get(MSG + i));
                 }
@@ -75,7 +76,7 @@ public class DisplayBoardHelpers {
             index2 = data.indexOf(PMS);
             if (index2 != -1) {
                 Log.i(TAG, "parsePriceString: " + index2);
-                pmsData = data.substring(index2 + 3, data.length());
+                pmsData = data.substring(index2 + 3);
             }
         }
         priceValuesTreeMap.put(AGO, agoData);
@@ -88,9 +89,18 @@ public class DisplayBoardHelpers {
     public static String createMessageSendFormat(TreeMap<String, String> messagesTreeMap) {
         String messages = "";
         for (String key : messagesTreeMap.keySet()) {
-
-            messages += key + " " + messagesTreeMap.get(key);
-
+            String msgTmap = messagesTreeMap.get(key);
+            messages += key + " " + msgTmap + "";
+           /* for(int i=1; i<=8;i++){
+                if(key.equals("//M"+String.valueOf(i))){
+                    messages += key + " " + msgTmap+" \n";
+                    break;
+                }
+                else{
+                    messages+="//M"+String.valueOf(i)+" "+ msgTmap+" \n";
+                }
+            }
+*/
         }
         return messages;
     }

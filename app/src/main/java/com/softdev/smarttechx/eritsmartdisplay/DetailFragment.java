@@ -1,5 +1,6 @@
 package com.softdev.smarttechx.eritsmartdisplay;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,13 +34,16 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
+import com.softdev.smarttechx.eritsmartdisplay.utils.Connection;
 import com.softdev.smarttechx.eritsmartdisplay.utils.GsonUtil;
 import com.softdev.smarttechx.eritsmartdisplay.utils.HttpConnection;
+import com.softdev.smarttechx.eritsmartdisplay.utils.HttpRequestUtil;
 import com.softdev.smarttechx.eritsmartdisplay.utils.NumberAwareStringComparator;
 
 import java.io.BufferedReader;
@@ -47,7 +51,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -116,6 +124,37 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
     private CheckBox dateTime;
     Calendar getCal = Calendar.getInstance();
     SimpleDateFormat df = new SimpleDateFormat("*HH:mm:ss*dd/MM/yy*");
+    private static final String ALLOW_CHAR = "";
+    AdapterView.OnItemSelectedListener spinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            //get the message associated with the spinner and display on the edittext
+            previousSelection = currentSelection;
+            if (!isFirstSelection) {
+                saveMessage(previousSelection + 1);
+            }
+            currentSelection = position;
+            String key = MSG + (position + 1);
+            String message = messagesTreeMap.containsKey(key) ? messagesTreeMap.get(key) : "";
+            messageEditText.setText(message.trim());
+            if (!TextUtils.isEmpty(message.trim())) {
+                messagesTextInputLayout.setHint(getString(R.string.content_of_message) + " " + (position + 1));
+            } else {
+                messagesTextInputLayout.setHint(getString(R.string.enter_the_message) + " " + (position + 1));
+            }
+            if (messagesSpinner.getSelectedItemPosition() == 0) {
+                String key1 = MSG + 1;
+                String message1 = messagesTreeMap.containsKey(key1) ? messagesTreeMap.get(key1) : "";
+                messageEditText.setText(message1);
+            }
+            isFirstSelection = false;
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
 
     public DetailFragment() {
         // Required empty public constructor
@@ -136,22 +175,110 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         return true;
     }
 
-    public void saveMessage(int postion) {
-        String key = MSG + String.valueOf(postion);
-        String text = messageEditText.getText().toString();
-        messagesTreeMap.put(key, text);
-        DetailFragmentHelper.dismissKeyboard(getContext(), getView());
-        if (!isFirstSelection) {
-            // Toast.makeText(getContext(), R.string.temp_saved, Toast.LENGTH_LONG).show();
-        }
-    }
+    private String baseURL;
+    private View.OnClickListener fabClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String data = null;
+            if (v == fab) {
+                if (invSwitch.isChecked()) {
+                    invertValue = "1";
+                } else {
+                    invertValue = "0";
+                }
+                if (brtEditText.getText().toString().length() == 0) {
+                    brtValue = "00";
+                } else if (brtEditText.getText().toString().length() == 1) {
+                    brtValue = "0" + brtEditText.getText().toString();
 
-    public void saveSyncMessage(int postion, String msg) {
-        String key = MSG + String.valueOf(postion);
-        String text = msg;
-        messagesTreeMap.put(key, text);
-        DetailFragmentHelper.dismissKeyboard(getContext(), getView());
-    }
+                } else {
+                    brtValue = brtEditText.getText().toString();
+                }
+                if (spdEditText.getText().toString().length() == 0) {
+                    spdValue = "00";
+                } else if (spdEditText.getText().toString().length() == 1) {
+                    spdValue = "0" + spdEditText.getText().toString();
+                } else {
+                    spdValue = spdEditText.getText().toString();
+
+                }
+                if (dateTime.isChecked() == true) {
+                    formatTimeDate = df.format(getCal.getTime());
+                } else {
+                    formatTimeDate = "";
+                }
+                if (pmsTwoEditText.getText().toString().length() == 0) {
+                    pmsTwoEditText.setText("00");
+                }
+                if (agoTwoEditText.getText().toString().length() == 0) {
+                    agoTwoEditText.setText("00");
+                }
+                if (dpkTwoEditText.getText().toString().length() == 0) {
+                    dpkTwoEditText.setText("00");
+                }
+                brtEditText.setText(brtValue);
+                spdEditText.setText(spdValue);
+                if (priceBoard != null) {
+                    priceBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
+                    priceBoard.setPriceValuesMap(createPriceTreeMap());
+                    baseURL = "http://" + priceBoard.getIpAddress();
+                    if (priceMSgNo > 0) {
+                        priceBoard.setMsgsMap(messagesTreeMap);
+                        data = "/writeDisplay" + priceBoard.createMessageSendFormat()
+                                + priceBoard.createPriceSendFormat() + "//ST" + priceBoard.getBSI() + "//TD" + formatTimeDate;
+                    } else {
+                        data = "/writeDisplay" + priceBoard.createPriceSendFormat() + "//ST" + priceBoard.getBSI() + "//TD" + formatTimeDate;
+                    }
+
+                }
+                if (msgBoard != null) {
+                    msgBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
+                    msgBoard.setMessagesMap(messagesTreeMap);
+                    baseURL = "http://" + msgBoard.getIpAddress();
+                    data = "/writeDisplay" + msgBoard.createMessageSendFormat() + "//ST" + msgBoard.getBSI() + "//TD" + formatTimeDate;
+                    //DetailFragmentHelper.saveMessages(getContext(), priceBoard);
+                }
+                if (customBoard != null) {
+                    customBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
+                    customBoard.setCustomMap(messagesTreeMap);
+                    baseURL = "http://" + customBoard.getIpAddress();
+                    data = "/writeDisplay" + customBoard.createMessageSendFormat() + "//ST" + customBoard.getBSI() + "//TD" + formatTimeDate;
+                    //DetailFragmentHelper.saveMessages(getContext(), priceBoard);
+                }
+                data = data.trim();
+                data = data.replaceAll("\\s+", " ");
+                for (int j = 1; j <= 8; j++) {
+                    if (j < 8) {
+                        if (data.contains("//M" + j)) {
+                            data = data.replace("//M" + (j + 1), " //M" + (j + 1));
+                        } else if (!data.contains("//M" + j)) {
+                            data = data + " //M" + j;
+                        }
+                    }
+                }
+
+             /*   Connection postData= new Connection();
+                postData.ByPostMethod(baseURL,data);*/
+
+                HttpRequestUtil httpconnection = new HttpRequestUtil();
+                httpconnection.execute(baseURL, "POST " + data);
+                Snackbar.make(getView().findViewById(R.id.fragment_root), "Saving...", Snackbar.LENGTH_LONG).show();
+
+                //TODO Implement send
+                //Use the Connection.java class and the NetworkUtils.java classes
+                //Use .createPriceSendFormat and createMessageSendFormat on the priceBoardInstance to create the formats
+                // //M1 <message one> //M2 <Message 2> .. and //A<ago_price>//D<dpk_price> //P<pms_price>
+            }
+            if (v == saveFloatingActionButton) {
+                TransitionManager.beginDelayedTransition(rootViewGroup, fade);
+                saveMessage(messagesSpinner.getSelectedItemPosition() + 1);
+                saveFloatingActionButton.setVisibility(View.GONE);
+                fab.setVisibility(View.VISIBLE);
+            }
+
+
+        }
+    };
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -228,6 +355,23 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
 
     }
 
+    public void saveMessage(int postion) {
+        String key = MSG + postion;
+        String text = messageEditText.getText().toString() + " ";
+        messagesTreeMap.put(key, text);
+        DetailFragmentHelper.dismissKeyboard(getContext(), getView());
+        if (!isFirstSelection) {
+            // Toast.makeText(getContext(), R.string.temp_saved, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void saveSyncMessage(int postion, String msg) {
+        String key = MSG + postion;
+        String text = msg + " ";
+        messagesTreeMap.put(key, text);
+        DetailFragmentHelper.dismissKeyboard(getContext(), getView());
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -268,7 +412,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         settingLayout.setVisibility(View.GONE);
         settingSwitch.setChecked(false);
         invSwitch.setChecked(false);
-        dateTime.setChecked(true);
+        dateTime.setChecked(false);
         dateTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -313,125 +457,6 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         rootViewGroup = (ViewGroup) view.findViewById(R.id.fragment_root);
         return view;
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        setUpSpinner();
-        if (invSwitch.isChecked()) {
-            invSwitch.setText("INVERT");
-        } else {
-            invSwitch.setText("NOT INVERT");
-        }
-
-        sync();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (messagesSpinner.getSelectedItemPosition() == 0) {
-                    String key = MSG + String.valueOf(1);
-                    String message = messagesTreeMap.containsKey(key) ? messagesTreeMap.get(key) : "";
-                    messageEditText.setText(message);
-                    //Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                }
-            }
-        }, 500);
-
-        if(messageEditText.getText().toString().equals("")||messageEditText.getText().toString().isEmpty()){
-            String key = MSG + String.valueOf(1);
-            String message = messagesTreeMap.containsKey(key) ? messagesTreeMap.get(key) : "";
-            messageEditText.setText(message);
-        }
-
-    }
-
-    private View.OnClickListener fabClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            String data = null;
-            if (v == fab) {
-                if (invSwitch.isChecked()) {
-                    invertValue = "1";
-                } else {
-                    invertValue = "0";
-                }
-                if (brtEditText.getText().toString().length() == 0) {
-                    brtValue = "00";
-                } else if (brtEditText.getText().toString().length() == 1) {
-                    brtValue = "0" + brtEditText.getText().toString();
-
-                } else {
-                    brtValue = brtEditText.getText().toString();
-                }
-                if (spdEditText.getText().toString().length() == 0) {
-                    spdValue = "00";
-                } else if (spdEditText.getText().toString().length() == 1) {
-                    spdValue = "0" + spdEditText.getText().toString();
-                } else {
-                    spdValue = spdEditText.getText().toString();
-
-                }
-                if (dateTime.isChecked() == true) {
-                    formatTimeDate = df.format(getCal.getTime());
-                } else {
-                    formatTimeDate = "";
-                }
-                if(pmsTwoEditText.getText().toString().length() == 0){
-                    pmsTwoEditText.setText("00");
-                }
-                if(agoTwoEditText.getText().toString().length() == 0){
-                    agoTwoEditText.setText("00");
-                }
-                if(dpkTwoEditText.getText().toString().length() == 0){
-                    dpkTwoEditText.setText("00");
-                }
-                brtEditText.setText(brtValue);
-                spdEditText.setText(spdValue);
-                if (priceBoard != null) {
-                    priceBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
-                    priceBoard.setPriceValuesMap(createPriceTreeMap());
-                    if (priceMSgNo > 0) {
-                        priceBoard.setMsgsMap(messagesTreeMap);
-                        data = "http://" + priceBoard.getIpAddress() + "/writeDisplay" + priceBoard.createMessageSendFormat()
-                                + priceBoard.createPriceSendFormat() + "//ST" + priceBoard.getBSI() + "//TD" + formatTimeDate;
-                    } else {
-                        data = "http://" + priceBoard.getIpAddress() + "/writeDisplay" + priceBoard.createPriceSendFormat() + "//ST" + priceBoard.getBSI() + "//TD" + formatTimeDate;
-                    }
-                }
-                if (msgBoard != null) {
-                    msgBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
-                    msgBoard.setMessagesMap(messagesTreeMap);
-                    data = "http://" + msgBoard.getIpAddress() + "/writeDisplay" + msgBoard.createMessageSendFormat() + "//ST" + msgBoard.getBSI() + "//TD" + formatTimeDate;
-                    //DetailFragmentHelper.saveMessages(getContext(), priceBoard);
-                }
-                if (customBoard != null) {
-                    customBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
-                    customBoard.setCustomMap(messagesTreeMap);
-                    data = "http://" + customBoard.getIpAddress() + "/writeDisplay" + customBoard.createMessageSendFormat() + "//ST" + customBoard.getBSI() + "//TD" + formatTimeDate;
-                    //DetailFragmentHelper.saveMessages(getContext(), priceBoard);
-                }
-                data=data.trim();
-                data=data.replaceAll("\\s+", " ");
-                HttpConnection httpconnection = new HttpConnection();
-                httpconnection.execute(data);
-                //Toast.makeText(getContext(), data, Toast.LENGTH_LONG).show();
-                Snackbar.make(getView().findViewById(R.id.fragment_root), "Saving...", Snackbar.LENGTH_LONG).show();
-
-                //TODO Implement send
-                //Use the Connection.java class and the NetworkUtils.java classes
-                //Use .createPriceSendFormat and createMessageSendFormat on the priceBoardInstance to create the formats
-                // //M1 <message one> //M2 <Message 2> .. and //A<ago_price>//D<dpk_price> //P<pms_price>
-            }
-            if (v == saveFloatingActionButton) {
-                TransitionManager.beginDelayedTransition(rootViewGroup, fade);
-                saveMessage(messagesSpinner.getSelectedItemPosition() + 1);
-                saveFloatingActionButton.setVisibility(View.GONE);
-                fab.setVisibility(View.VISIBLE);
-            }
-
-
-        }
-    };
 
     private void setUpSpinner() {
         if (priceBoard != null) {
@@ -510,36 +535,42 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         }
     }
 
-    AdapterView.OnItemSelectedListener spinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            //get the message associated with the spinner and display on the edittext
-            previousSelection = currentSelection;
-            if (!isFirstSelection) {
-                saveMessage(previousSelection + 1);
+    @Override
+    public void onStart() {
+        super.onStart();
+        setUpSpinner();
+        if (invSwitch.isChecked()) {
+            invSwitch.setText("INVERT");
+        } else {
+            invSwitch.setText("NOT INVERT");
+        }
+
+        sync();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sync();
             }
-            currentSelection = position;
-            String key = MSG + String.valueOf(position + 1);
+        }, 500);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (messagesSpinner.getSelectedItemPosition() == 0) {
+                    String key = MSG + 1;
+                    String message = messagesTreeMap.containsKey(key) ? messagesTreeMap.get(key) : "";
+                    messageEditText.setText(message);
+                    //Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, 500);
+
+        if (messageEditText.getText().toString().equals("") || messageEditText.getText().toString().isEmpty()) {
+            String key = MSG + 1;
             String message = messagesTreeMap.containsKey(key) ? messagesTreeMap.get(key) : "";
-            messageEditText.setText(message.trim());
-            if (!TextUtils.isEmpty(message.trim())) {
-                messagesTextInputLayout.setHint(getString(R.string.content_of_message) + " " + (position + 1));
-            } else {
-                messagesTextInputLayout.setHint(getString(R.string.enter_the_message) + " " + (position + 1));
-            }
-            if (messagesSpinner.getSelectedItemPosition() == 0) {
-                String key1 = MSG + String.valueOf(1);
-                String message1 = messagesTreeMap.containsKey(key1) ? messagesTreeMap.get(key1) : "";
-                messageEditText.setText(message1);
-            }
-            isFirstSelection = false;
+            messageEditText.setText(message);
         }
 
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
+    }
 
 
     @Override
@@ -554,7 +585,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             case R.id.action_sync:
                 sync();
                 if (messagesSpinner.getSelectedItemPosition() == 0) {
-                    String key = MSG + String.valueOf(1);
+                    String key = MSG + 1;
                     String message = messagesTreeMap.containsKey(key) ? messagesTreeMap.get(key) : "";
                     messageEditText.setText(message);
                     //Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -598,7 +629,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         agoTwoEditText.setText(priceValuesMap.get(AGO).split(":")[1].trim());
 
         if (messagesSpinner.getSelectedItemPosition() == 0) {
-            String key1 = MSG + String.valueOf(1);
+            String key1 = MSG + 1;
             String message1 = messagesTreeMap.containsKey(key1) ? messagesTreeMap.get(key1) : "";
             messageEditText.setText(message1);
         }
@@ -667,9 +698,28 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             String dp = "";
             String ag = "";
             String ps = "";
-            try{
-                result=result.trim();
-                result=result.replaceAll("\\s+", " ");
+            try {
+                result = result.trim();
+                result = result.replaceAll("\\s+", " ");
+                // Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+                try {
+                    result = URLDecoder.decode(result);
+                    // Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+
+                }
+                if (result.contains("%20")) {
+                    result = result.replaceAll("%20", " ");
+                    result = result.trim();
+                    result = result.replaceAll("\\s+", " ");
+                }
+                if (result.contains("20")) {
+                    result = result.replaceAll("20", "");
+                    result = result.trim();
+                    result = result.replaceAll("\\s+", " ");
+                }
+
+                // Toast.makeText(getActivity().getApplicationContext(), result, Toast.LENGTH_SHORT).show();
             }catch (Exception e){
 
             }
@@ -681,13 +731,13 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
                     try {
                         for (int j = 1; j <= priceMSgNo; j++) {
                             if (j < priceMSgNo) {
-                                ptr = result.indexOf("//M" + String.valueOf(j));
-                                ptr1 = result.indexOf("//M" + String.valueOf(j + 1));
+                                ptr = result.indexOf("//M" + j);
+                                ptr1 = result.indexOf("//M" + (j + 1));
                                 if ((ptr != -1) && (ptr1 != -1)) {
                                     saveSyncMessage(j, result.substring(ptr + 4, ptr1).trim());
                                 }
                             } else if (j == priceMSgNo) {
-                                ptr = result.indexOf("//M" + String.valueOf(j));
+                                ptr = result.indexOf("//M" + j);
                                 ptr1 = result.indexOf("//PS");
                                 if ((ptr != -1) && (ptr1 != -1)) {
                                     saveSyncMessage(j, result.substring(ptr + 4, ptr1).trim());
@@ -796,13 +846,13 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
                 try {
                     for (int j = 1; j <= MSgNo; j++) {
                         if (j < MSgNo) {
-                            ptr = result.indexOf("//M" + String.valueOf(j));
-                            ptr1 = result.indexOf("//M" + String.valueOf(j + 1));
+                            ptr = result.indexOf("//M" + j);
+                            ptr1 = result.indexOf("//M" + (j + 1));
                             if ((ptr != -1) && (ptr1 != -1)) {
                                 saveSyncMessage(j, result.substring(ptr + 4, ptr1).trim());
                             }
                         } else if (j == MSgNo) {
-                            ptr = result.indexOf("//M" + String.valueOf(j));
+                            ptr = result.indexOf("//M" + j);
                             ptr1 = result.indexOf("//PS");
                             if ((ptr != -1) && (ptr1 != -1)) {
                                 saveSyncMessage(j, result.substring(ptr + 4, ptr1).trim());
@@ -845,13 +895,13 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
                 try {
                     for (int j = 1; j <= 8; j++) {
                         if (j < 8) {
-                            ptr = result.indexOf("//M" + String.valueOf(j));
-                            ptr1 = result.indexOf("//M" + String.valueOf(j + 1));
+                            ptr = result.indexOf("//M" + j);
+                            ptr1 = result.indexOf("//M" + (j + 1));
                             if ((ptr != -1) && (ptr1 != -1)) {
                                 saveSyncMessage(j, result.substring(ptr + 4, ptr1).trim());
                             }
                         } else if (j == 8) {
-                            ptr = result.indexOf("//M" + String.valueOf(j));
+                            ptr = result.indexOf("//M" + j);
                             ptr1 = result.indexOf("//PS");
                             if ((ptr != -1) && (ptr1 != -1)) {
                                 saveSyncMessage(j, result.substring(ptr + 4, ptr1).trim());
