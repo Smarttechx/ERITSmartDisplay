@@ -59,6 +59,12 @@
         <item>TYPE 20</item>
 
     </array>
+    <array name="digital_clock_board_types">
+        <item>Select the Digital Clock Board type</item>
+        <item>TYPE 1</item>
+        <item>TYPE 2</item>
+        <item>TYPE 3</item>
+    </array>
 
     <array name="prefs_sort">
         <item>@string/sort_default</item>

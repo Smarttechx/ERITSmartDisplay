@@ -11,6 +11,7 @@ public class SmartDisplay implements Serializable {
     private PriceBoard priceBoard;
     private MessageBoard msgBoard;
     private CustomBoard customBoard;
+    private DigitalClockBoard digitalboardBoard;
 
     public SmartDisplay( String boardType,PriceBoard priceBoard ) {
 
@@ -22,6 +23,11 @@ public class SmartDisplay implements Serializable {
 
         this.boardType=boardType;
         this.customBoard=customBoard;
+    }
+    public SmartDisplay(String boardType,DigitalClockBoard digitalboardBoard ) {
+
+        this.boardType=boardType;
+        this.digitalboardBoard=digitalboardBoard;
     }
     public SmartDisplay( String boardType,MessageBoard msgBoard ) {
 
@@ -55,6 +61,14 @@ public class SmartDisplay implements Serializable {
 
     public void setCustomBoard(CustomBoard customBoard) {
         this.customBoard= customBoard;
+    }
+
+    public DigitalClockBoard getDigitalBoardBoard() {
+        return digitalboardBoard;
+    }
+
+    public void setDigitalboardBoard(DigitalClockBoard digitalboardBoard) {
+        this.digitalboardBoard= digitalboardBoard;
     }
     public String getBoardType() {
         return boardType;

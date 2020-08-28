@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.softdev.smarttechx.eritsmartdisplay.R;
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
+import com.softdev.smarttechx.eritsmartdisplay.models.DigitalClockBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
@@ -18,6 +19,7 @@ import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
 import java.util.ArrayList;
 
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.CUSTOM;
+import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.DIGITAL;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.MESSAGE;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.PRICE;
 
@@ -36,6 +38,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
     private PriceBoard priceBoard;
     private CustomBoard customBoard;
     private MessageBoard msgBoard;
+    private DigitalClockBoard digitalclockBoard;
     public int devicePosition;
     public HomeAdapter(Context context,ArrayList<SmartDisplay>  smartBoardList) {
         this.context = context;
@@ -120,6 +123,16 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
             customBoard.setId(holder.getLayoutPosition());
             holder.displayName.setText(customBoard.getName());
             holder.boardTypeIcon.setImageResource(R.drawable.ic_custom_24dp);
+            holder.itemView.setTag( smartDisplay );
+            holder.displayOverflowButton.setTag( smartDisplay );
+        }
+
+        else if(smartDisplay.getBoardType().equals(DIGITAL)){
+            digitalclockBoard=new DigitalClockBoard();
+            digitalclockBoard=smartDisplay.getDigitalBoardBoard();
+            digitalclockBoard.setId(holder.getLayoutPosition());
+            holder.displayName.setText(digitalclockBoard.getName());
+            holder.boardTypeIcon.setImageResource(R.drawable.ic_access_time_black_24dp);
             holder.itemView.setTag( smartDisplay );
             holder.displayOverflowButton.setTag( smartDisplay );
         }
