@@ -1,17 +1,20 @@
 package com.softdev.smarttechx.eritsmartdisplay;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.TextInputLayout;
-import android.support.transition.Fade;
-import android.support.transition.TransitionManager;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.AppCompatSpinner;
+
+import androidx.annotation.Nullable;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.transition.Fade;
+import androidx.transition.TransitionManager;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.widget.AppCompatSpinner;
+
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -34,15 +37,12 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
-import com.softdev.smarttechx.eritsmartdisplay.utils.Connection;
 import com.softdev.smarttechx.eritsmartdisplay.utils.GsonUtil;
-import com.softdev.smarttechx.eritsmartdisplay.utils.HttpConnection;
 import com.softdev.smarttechx.eritsmartdisplay.utils.HttpRequestUtil;
 import com.softdev.smarttechx.eritsmartdisplay.utils.NumberAwareStringComparator;
 
@@ -51,11 +51,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;

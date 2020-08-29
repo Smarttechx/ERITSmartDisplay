@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.softdev.smarttechx.eritsmartdisplay.AboutFragment">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/erit_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -13,7 +13,7 @@
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
         android:contentDescription="@string/erit_logo"
-        app:srcCompat = "@drawable/erit_logo"/>
+        app:srcCompat="@drawable/erit_logo" />
     <TextView
         android:id="@+id/erit_site"
         android:layout_width="wrap_content"

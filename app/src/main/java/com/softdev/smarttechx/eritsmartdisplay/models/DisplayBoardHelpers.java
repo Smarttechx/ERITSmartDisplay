@@ -21,6 +21,9 @@ public class DisplayBoardHelpers {
     public static final int PRICE_BOARD_DEC = 50;
     public static final int MESSAGE_BOARD_DEC = 100;
     public static final int CUSTOMIZE_BOARD_DEC = 150;
+
+    public static final int DIGITAL_BOARD_DEC = 200;
+
     public static final String TAG = DisplayBoardHelpers.class.getSimpleName();
     Context context;
 
@@ -110,17 +113,20 @@ public class DisplayBoardHelpers {
         return Integer.toHexString(MESSAGE_BOARD_DEC + messageBoardType.getNumberOfCascades());
     }
 
-    public static String generatePriceBoardCode(PriceBoard.PriceBoardType priceBoardType){
+    public static String generatePriceBoardCode(PriceBoard.PriceBoardType priceBoardType) {
         Log.i(TAG, "generatePriceBoardCode: " + Integer.toHexString(PRICE_BOARD_DEC + priceBoardType.getNumberOfCascades()));
         return Integer.toHexString(PRICE_BOARD_DEC + priceBoardType.getNumberOfCascades());
     }
 
-    public static String generateCustomizeBoardCode(CustomBoard.CustomBoardType customBoardType){
+    public static String generateCustomizeBoardCode(CustomBoard.CustomBoardType customBoardType) {
         Log.i(TAG, "generateCustomizeBoardCode: " + Integer.toHexString(CUSTOMIZE_BOARD_DEC + customBoardType.getNumberOfCascades()));
-        return Integer.toHexString(CUSTOMIZE_BOARD_DEC  +customBoardType.getNumberOfCascades());
+        return Integer.toHexString(CUSTOMIZE_BOARD_DEC + customBoardType.getNumberOfCascades());
     }
 
-
+    public static String generateDigitalClockBoardCode(DigitalClockBoard.DigitalClockType digitalClockType) {
+        Log.i(TAG, "generateCustomizeBoardCode: " + Integer.toHexString(DIGITAL_BOARD_DEC + digitalClockType.getNumberOfCascades()));
+        return Integer.toHexString(DIGITAL_BOARD_DEC + digitalClockType.getNumberOfCascades());
+    }
 
 
 }

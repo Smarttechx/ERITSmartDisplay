@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -37,7 +37,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/select_message" />
 
-                    <android.support.v7.widget.AppCompatSpinner
+                    <androidx.appcompat.widget.AppCompatSpinner
                         android:id="@+id/spinner"
                         style="@style/SpinnerStyle"
                         android:layout_width="wrap_content"
@@ -62,7 +62,7 @@
                                 android:layout_margin="8dp"
                                 app:srcCompat="@drawable/ic_mode_edit_black_24dp" />
 
-                            <android.support.design.widget.TextInputLayout
+                            <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/edit_enter_message_text_input_layout"
                                 android:layout_width="0dp"
                                 android:layout_height="match_parent"
@@ -82,11 +82,11 @@
                                     android:maxLines="1"
                                     android:textSize="20sp" />
 
-                            </android.support.design.widget.TextInputLayout>
+                            </com.google.android.material.textfield.TextInputLayout>
 
                         </LinearLayout>
 
-                        <android.support.design.widget.FloatingActionButton
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
                             android:id="@+id/saveFloatingActionButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -395,7 +395,7 @@
 
 
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -3,7 +3,9 @@ package com.softdev.smarttechx.eritsmartdisplay;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -175,8 +177,8 @@ public class DebugFragment extends Fragment implements View.OnClickListener {
             }
 
             for (int j = 0; j < 8; j++) {
-                if (result.contains("//M" + String.valueOf(j))) {
-                    result = result.replace("//M" + String.valueOf(j), "//M" + String.valueOf(j) + "\n");
+                if (result.contains("//M" + j)) {
+                    result = result.replace("//M" + j, "//M" + j + "\n");
                 }
             }
             if (result.contains("//PS")) {
