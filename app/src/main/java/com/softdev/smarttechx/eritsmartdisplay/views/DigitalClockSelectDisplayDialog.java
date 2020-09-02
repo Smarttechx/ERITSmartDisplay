@@ -267,7 +267,7 @@ public class DigitalClockSelectDisplayDialog extends DialogFragment implements T
     }
 
     private void setUpSpinner() {
-        int arrayResource = R.array.custom_board_types;
+        int arrayResource = R.array.digital_clock_board_types;
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 arrayResource, android.R.layout.simple_spinner_item);
 // Specify the layout to use when the list of choices appears

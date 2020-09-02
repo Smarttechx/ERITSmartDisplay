@@ -4,8 +4,10 @@ package com.softdev.smarttechx.eritsmartdisplay;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
@@ -35,6 +37,7 @@ import com.softdev.smarttechx.eritsmartdisplay.views.MessageSelectDisplayDialog;
 import com.softdev.smarttechx.eritsmartdisplay.views.PriceSelectDisplayDialog;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.CUSTOM;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.DIGITAL;
@@ -148,12 +151,20 @@ public class HomeFragment extends Fragment implements HomeAdapter.HomeAdapterLis
             priceDialog.setCancelable(false);
             priceDialog.show(getChildFragmentManager(), "edit");
             return true;
-        } else if (id == R.id.action_add_resturant_display) {
+        } else if (id == R.id.action_add_eatry_display) {
             MessageBoard msgBoard = new MessageBoard();
             msgBoard.setMessageBoardType(MessageBoard.MessageBoardType.MESSAGE_BOARD_TYPE_NONE);
             MessageSelectDisplayDialog msgDialog = MessageSelectDisplayDialog.getInstance(msgBoard, false);
             msgDialog.setCancelable(false);
             msgDialog.show(getChildFragmentManager(), "edit");
+            return true;
+        } else if (id == R.id.action_add_digital_clock_display) {
+
+            DigitalClockBoard digitalClockBoard = new DigitalClockBoard();
+            digitalClockBoard.setDigitalClockType(DigitalClockBoard.DigitalClockType.digitalclock_BOARD_TYPE_NONE);
+            DigitalClockSelectDisplayDialog digitalDialog = DigitalClockSelectDisplayDialog.getInstance(digitalClockBoard, false);
+            digitalDialog.setCancelable(false);
+            digitalDialog.show(getChildFragmentManager(), "edit");
             return true;
         } else if (id == R.id.action_add_custom_display) {
             CustomBoard customBoard = new CustomBoard();
@@ -169,9 +180,10 @@ public class HomeFragment extends Fragment implements HomeAdapter.HomeAdapterLis
 
 
     /*Methods for the adapter listener*/
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onDisplayClicked(SmartDisplay displayBoard) {
-        Intent boardIntent = new Intent(getActivity().getApplicationContext(), DetailActivity.class);
+        Intent boardIntent = new Intent(Objects.requireNonNull(getActivity()).getApplicationContext(), DetailActivity.class);
         Bundle bundle = new Bundle();
         String putCustom = GsonUtil.getGsonparser().toJson(displayBoard);
         bundle.putString("BOARD", putCustom);
@@ -213,10 +225,10 @@ public class HomeFragment extends Fragment implements HomeAdapter.HomeAdapterLis
                         }
                         else if (displayBoard.getBoardType().equals(DIGITAL)) {
                             digitalClockBoard = new DigitalClockBoard();
-                            digitalClockBoard = displayBoard.getDigitalBoardBoard();
-                            DigitalClockSelectDisplayDialog editdClockBoard = DigitalClockSelectDisplayDialog.getInstance(digitalClockBoard, true);
-                            editdClockBoard.setCancelable(false);
-                            editdClockBoard.show(getChildFragmentManager(), "");
+                            digitalClockBoard = displayBoard.getDigitalBoard();
+                            DigitalClockSelectDisplayDialog editClockBoard = DigitalClockSelectDisplayDialog.getInstance(digitalClockBoard, true);
+                            editClockBoard.setCancelable(false);
+                            editClockBoard.show(getChildFragmentManager(), "");
                         }
                         return true;
 

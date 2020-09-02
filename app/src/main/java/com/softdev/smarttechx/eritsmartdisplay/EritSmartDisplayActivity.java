@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.softdev.smarttechx.eritsmartdisplay.adapters.HomeAdapter;
 import com.softdev.smarttechx.eritsmartdisplay.data.SmartDisplayDB;
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
+import com.softdev.smarttechx.eritsmartdisplay.models.DigitalClockBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
@@ -35,6 +36,7 @@ import com.softdev.smarttechx.eritsmartdisplay.utils.HttpConnection;
 import com.softdev.smarttechx.eritsmartdisplay.utils.NetworkUtil;
 import com.softdev.smarttechx.eritsmartdisplay.utils.WifiHotspot;
 import com.softdev.smarttechx.eritsmartdisplay.views.CustomSelectDisplayDialog;
+import com.softdev.smarttechx.eritsmartdisplay.views.DigitalClockSelectDisplayDialog;
 import com.softdev.smarttechx.eritsmartdisplay.views.MessageSelectDisplayDialog;
 import com.softdev.smarttechx.eritsmartdisplay.views.PriceSelectDisplayDialog;
 
@@ -43,7 +45,7 @@ import java.util.ArrayList;
 
 public class EritSmartDisplayActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, HomeFragment.HomeFragmentListener, PriceSelectDisplayDialog.PriceSelectDisplayDialogListener,
-        MessageSelectDisplayDialog.SelectDisplayDialogListener, CustomSelectDisplayDialog.SelectCustomDisplayDialogListener {
+        MessageSelectDisplayDialog.SelectDisplayDialogListener, CustomSelectDisplayDialog.SelectCustomDisplayDialogListener, DigitalClockSelectDisplayDialog.SelectDigitalClockDisplayDialogListener {
     public static final String TAG = EritSmartDisplayActivity.class.getSimpleName();
     public static final String POSITION_KEY = "position";
     public static final String FRAG_TAG = "frag";
@@ -62,6 +64,9 @@ public class EritSmartDisplayActivity extends AppCompatActivity
     private MessageBoard msgBoard;
     String title;
     private CustomBoard customBoard;
+
+
+    private DigitalClockBoard digitalClockBoard;
     private WifiHotspot wifiHotspot;
     private boolean doubleBackToExitPressedOnce;
     private SmartDisplayDB displayDB;
@@ -421,6 +426,30 @@ public class EritSmartDisplayActivity extends AppCompatActivity
 
     }
 
+
+    private void saveDigitalBoard() {
+        HttpConnection httpconnection = new HttpConnection();
+        httpconnection.execute(NetworkUtil.buildClockBoardConfigUrl(digitalClockBoard));
+        //  Toast.makeText(this, NetworkUtil.buildCustomBoardConfigUrl(customBoard).toString(), Toast.LENGTH_SHORT).show();
+        displayBoard = new SmartDisplay(DIGITAL, digitalClockBoard);
+        smartBoardList.add(displayBoard);
+        displayDB.saveDisplays(smartBoardList);
+        Fragment fragment = HomeFragment.getInstance();
+        displayFragment(fragment);
+    }
+
+    private void updateDigitalBoard() {
+        //Toast.makeText(this, NetworkUtil.buildCustomBoardConfigUrl(customBoard), Toast.LENGTH_SHORT).show();
+        HttpConnection httpconnection = new HttpConnection();
+        httpconnection.execute(NetworkUtil.buildClockBoardConfigUrl(digitalClockBoard));
+        smartBoardList.get(digitalClockBoard.getId()).setDigitalBoard(digitalClockBoard);
+        displayDB.saveDisplays(smartBoardList);
+        homeAdapter.notifyDataSetChanged();
+        Fragment fragment = HomeFragment.getInstance();
+        displayFragment(fragment);
+
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -437,4 +466,15 @@ public class EritSmartDisplayActivity extends AppCompatActivity
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    public void onDigitalClockPositiveButtonClicked(DialogFragment dialog, DigitalClockBoard digitalClockBoard, boolean isEditing) {
+        this.digitalClockBoard = digitalClockBoard;
+        if (isEditing) {
+            updateDigitalBoard();
+        } else {
+            saveDigitalBoard();
+        }
+        dialog.dismiss();
+
+    }
 }

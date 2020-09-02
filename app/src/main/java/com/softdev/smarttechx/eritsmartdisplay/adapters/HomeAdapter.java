@@ -130,8 +130,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeViewHolder
         }
 
         else if(smartDisplay.getBoardType().equals(DIGITAL)){
-            digitalclockBoard=new DigitalClockBoard();
-            digitalclockBoard=smartDisplay.getDigitalBoardBoard();
+            digitalclockBoard = new DigitalClockBoard();
+            digitalclockBoard = smartDisplay.getDigitalBoard();
             digitalclockBoard.setId(holder.getLayoutPosition());
             holder.displayName.setText(digitalclockBoard.getName());
             holder.boardTypeIcon.setImageResource(R.drawable.ic_access_time_black_24dp);

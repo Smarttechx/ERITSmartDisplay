@@ -39,6 +39,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.softdev.smarttechx.eritsmartdisplay.models.CustomBoard;
+import com.softdev.smarttechx.eritsmartdisplay.models.DigitalClockBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.PriceBoard;
 import com.softdev.smarttechx.eritsmartdisplay.models.SmartDisplay;
@@ -60,6 +61,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.CUSTOM;
+import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.DIGITAL;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.MESSAGE;
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.PRICE;
 import static com.softdev.smarttechx.eritsmartdisplay.models.MessageBoard.MSG;
@@ -93,15 +95,16 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
     private FloatingActionButton fab;
     private FloatingActionButton saveFloatingActionButton;
     private RelativeLayout priceRoot;
+    SimpleDateFormat dfdata = new SimpleDateFormat("dd/MM/yyyy");
     private LinearLayout msgLayout;
     private Switch invSwitch;
-
+    private LinearLayout digitalclockView;
     private Handler mHandler = new Handler();
-
-    private TreeMap<String, String> messagesTreeMap;
+    private TextView dateView;
     private PriceBoard priceBoard;
     private CustomBoard customBoard;
     private MessageBoard msgBoard;
+    private TreeMap<String, String> messagesTreeMap = new TreeMap<>();
     private SmartDisplay smartDisplay;
     private int currentSelection;
     private int previousSelection;
@@ -121,7 +124,6 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
     private CheckBox dateTime;
     Calendar getCal = Calendar.getInstance();
     SimpleDateFormat df = new SimpleDateFormat("*HH:mm:ss*dd/MM/yy*");
-    private static final String ALLOW_CHAR = "";
     AdapterView.OnItemSelectedListener spinnerItemSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -133,6 +135,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             currentSelection = position;
             String key = MSG + (position + 1);
             String message = messagesTreeMap.containsKey(key) ? messagesTreeMap.get(key) : "";
+            assert message != null;
             messageEditText.setText(message.trim());
             if (!TextUtils.isEmpty(message.trim())) {
                 messagesTextInputLayout.setHint(getString(R.string.content_of_message) + " " + (position + 1));
@@ -152,6 +155,8 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
 
         }
     };
+    private static final String ALLOW_CHAR = "";
+    private DigitalClockBoard digitalBoard;
 
     public DetailFragment() {
         // Required empty public constructor
@@ -321,6 +326,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         DetailFragment detailFragment = new DetailFragment();
         Bundle bundle = new Bundle();
         String putBoard = GsonUtil.getGsonparser().toJson(displayBoard);
+        Log.v("putBoard", putBoard);
         bundle.putString(BOARD_KEY, putBoard);
         detailFragment.setArguments(bundle);
         return detailFragment;
@@ -331,19 +337,24 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
+        assert bundle != null;
         String getBoard = bundle.getString(BOARD_KEY);
         smartDisplay = GsonUtil.getGsonparser().fromJson(getBoard, SmartDisplay.class);
         if (smartDisplay.getBoardType().equals(PRICE)) {
             priceBoard = new PriceBoard();
             priceBoard = smartDisplay.getPriceBoard();
-            priceMSgNo = Integer.valueOf(priceBoard.getNoOfMsg());
+            priceMSgNo = Integer.parseInt(priceBoard.getNoOfMsg());
         } else if (smartDisplay.getBoardType().equals(MESSAGE)) {
             msgBoard = new MessageBoard();
             msgBoard = smartDisplay.getMsgBoard();
         } else if (smartDisplay.getBoardType().equals(CUSTOM)) {
             customBoard = new CustomBoard();
             customBoard = smartDisplay.getCustomBoard();
+        } else if (smartDisplay.getBoardType().equals(DIGITAL)) {
+            digitalBoard = new DigitalClockBoard();
+            digitalBoard = smartDisplay.getDigitalBoard();
         }
+
     }
 
     @Override
@@ -386,6 +397,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         agoThreeEditText = (EditText) view.findViewById(R.id.ago_000);
         agoTwoEditText = (EditText) view.findViewById(R.id.ago_00);
 
+        dateView = view.findViewById(R.id.dateView);
         brtEditText = (EditText) view.findViewById(R.id.BRT00);
         spdEditText = (EditText) view.findViewById(R.id.SPD00);
         invSwitch = (Switch) view.findViewById(R.id.switchinv);
@@ -394,6 +406,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         settingSwitch = (Switch) view.findViewById(R.id.switchSetting);
 
         priceRoot = (RelativeLayout) view.findViewById(R.id.price_root);
+        digitalclockView = view.findViewById(R.id.digitalclockView);
         messagesSpinner.setOnItemSelectedListener(spinnerItemSelectedListener);
         messageEditText.setOnEditorActionListener(this);
         messageEditText.addTextChangedListener(this);
@@ -410,11 +423,13 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
         settingSwitch.setChecked(false);
         invSwitch.setChecked(false);
         dateTime.setChecked(false);
+        dateView.setText(dfdata.format(getCal.getTime()));
         dateTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     formatTimeDate = df.format(getCal.getTime());
+
                 } else {
                     formatTimeDate = "";
                 }
@@ -457,7 +472,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
 
     private void setUpSpinner() {
         if (priceBoard != null) {
-            int priceMSgNo = Integer.valueOf(priceBoard.getNoOfMsg());
+            int priceMSgNo = Integer.parseInt(priceBoard.getNoOfMsg());
             if (priceMSgNo > 0) {
                 if (priceBoard.getMsgsMap() != null) {
                     messagesTreeMap = priceBoard.getMsgsMap();
@@ -509,6 +524,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             }
         } else if (customBoard != null) {
             priceRoot.setVisibility(View.GONE);
+
             if (customBoard.getCustomMap() != null) {
                 messagesTreeMap = customBoard.getCustomMap();
                 //  Log.i(TAG, "setUpSpinner: " + priceBoard.getMessagesMap().toString());
@@ -529,6 +545,11 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             messagesSpinner.setAdapter(adapter);
             messagesSpinner.setSelection(currentSelection, true);
+        } else if (digitalBoard != null) {
+            priceRoot.setVisibility(View.GONE);
+            msgLayout.setVisibility(View.GONE);
+            digitalclockView.setVisibility(View.VISIBLE);
+            dateTime.setChecked(true);
         }
     }
 
@@ -954,6 +975,11 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
             }
             if (customBoard != null) {
                 dataSync = buildSyncingUrl(customBoard);
+                // Toast.makeText(getContext(), buildSyncingUrl(customBoard), Toast.LENGTH_SHORT).show();
+            }
+
+            if (digitalBoard != null) {
+                dataSync = buildSyncingUrl(digitalBoard);
                 // Toast.makeText(getContext(), buildSyncingUrl(customBoard), Toast.LENGTH_SHORT).show();
             }
             new HttpAsyncTask().execute(dataSync);

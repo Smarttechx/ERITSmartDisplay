@@ -80,14 +80,13 @@ public class DigitalClockBoard implements Serializable {
     public static DigitalClockType getDigitalClockTypeFromInt(int code) throws Exception {
         switch (code) {
             case (1):
+            case (-200):
                 return DigitalClockType.digitalclock_BOARD_TYPE_NONE;
 
             case (2):
                 return DigitalClockType.digitalclock_BOARD_TYPE_TWO;
             case (3):
                 return DigitalClockType.digitalclock_BOARD_TYPE_THREE;
-            case (-200):
-                return DigitalClockType.digitalclock_BOARD_TYPE_NONE;
 
             default:
                 throw new Exception("Integer " + code + " is not associated with any digitalclock board type");

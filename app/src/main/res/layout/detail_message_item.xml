@@ -22,12 +22,12 @@
                 android:layout_weight="1"
                 android:background="@drawable/bolder"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <LinearLayout
                     android:id="@+id/msgView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <TextView
@@ -64,7 +64,7 @@
 
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/edit_enter_message_text_input_layout"
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1">
 
@@ -74,7 +74,6 @@
                                     android:layout_height="match_parent"
                                     android:layout_gravity="center_vertical"
                                     android:layout_marginEnd="16dp"
-                                    android:layout_marginRight="16dp"
                                     android:ems="20"
                                     android:hint="@string/enter_the_message"
                                     android:imeOptions="actionDone"
@@ -84,17 +83,18 @@
 
                             </com.google.android.material.textfield.TextInputLayout>
 
-                        </LinearLayout>
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                                android:id="@+id/saveFloatingActionButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end|fill_vertical"
+                                android:layout_marginTop="@dimen/fab_margin"
+                                android:layout_marginRight="8dp"
+                                android:visibility="visible"
+                                app:fabSize="mini"
+                                app:srcCompat="@drawable/ic_save_black_24dp" />
 
-                        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:id="@+id/saveFloatingActionButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end|fill_vertical"
-                            android:layout_margin="@dimen/fab_margin"
-                            android:visibility="visible"
-                            app:fabSize="mini"
-                            app:srcCompat="@drawable/ic_save_black_24dp" />
+                        </LinearLayout>
 
                     </FrameLayout>
                 </LinearLayout>
@@ -121,34 +121,34 @@
                             style="@style/HeaderTextViewLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_row="0"
                             android:layout_column="0"
                             android:layout_columnSpan="4"
                             android:layout_gravity="center_horizontal"
-                            android:layout_row="0"
                             android:text="@string/price_board" />
 
                         <TextView
                             style="@style/PriceBoardTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="0"
                             android:layout_row="1"
+                            android:layout_column="0"
                             android:text="@string/pms" />
 
                         <TextView
                             style="@style/PriceBoardTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="0"
                             android:layout_row="2"
+                            android:layout_column="0"
                             android:text="@string/dpk" />
 
                         <TextView
                             style="@style/PriceBoardTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="0"
                             android:layout_row="3"
+                            android:layout_column="0"
                             android:text="@string/ago" />
 
                         <EditText
@@ -156,8 +156,8 @@
                             style="@style/EditTextStyle000"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="1"
                             android:layout_row="1"
+                            android:layout_column="1"
                             android:hint="@string/zeros_three"
                             android:imeOptions="actionNext"
                             android:nextFocusForward="@+id/pms_00" />
@@ -167,8 +167,8 @@
                             style="@style/EditTextStyle000"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="1"
                             android:layout_row="2"
+                            android:layout_column="1"
                             android:hint="@string/zeros_three"
                             android:imeOptions="actionNext"
 
@@ -179,8 +179,8 @@
                             style="@style/EditTextStyle000"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="1"
                             android:layout_row="3"
+                            android:layout_column="1"
                             android:hint="@string/zeros_three"
                             android:imeOptions="actionNext"
                             android:nextFocusForward="@+id/ago_00" />
@@ -188,22 +188,22 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="2"
                             android:layout_row="1"
+                            android:layout_column="2"
                             android:text=":" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="2"
                             android:layout_row="2"
+                            android:layout_column="2"
                             android:text=":" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="2"
                             android:layout_row="3"
+                            android:layout_column="2"
                             android:text=":" />
 
                         <EditText
@@ -211,8 +211,8 @@
                             style="@style/EditTextStyle00"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="3"
                             android:layout_row="1"
+                            android:layout_column="3"
                             android:hint="@string/zeros"
                             android:imeOptions="actionDone" />
 
@@ -221,8 +221,8 @@
                             style="@style/EditTextStyle00"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="3"
                             android:layout_row="2"
+                            android:layout_column="3"
                             android:hint="@string/zeros"
                             android:imeOptions="actionDone" />
 
@@ -231,8 +231,8 @@
                             style="@style/EditTextStyle00"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_column="3"
                             android:layout_row="3"
+                            android:layout_column="3"
                             android:hint="@string/zeros"
                             android:imeOptions="actionDone" />
 
@@ -246,14 +246,16 @@
             <LinearLayout
                 android:id="@+id/digitalclockView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/bolder"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <DigitalClock
                     android:id="@+id/simpleDigitalClock"
