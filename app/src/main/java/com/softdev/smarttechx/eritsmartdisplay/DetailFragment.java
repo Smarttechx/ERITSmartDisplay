@@ -1,6 +1,7 @@
 package com.softdev.smarttechx.eritsmartdisplay;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -10,6 +11,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 
+import androidx.annotation.RequiresApi;
 import androidx.transition.Fade;
 import androidx.transition.TransitionManager;
 import androidx.fragment.app.Fragment;
@@ -58,6 +60,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import static com.softdev.smarttechx.eritsmartdisplay.EritSmartDisplayActivity.CUSTOM;
@@ -179,6 +182,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
 
     private String baseURL;
     private View.OnClickListener fabClickListener = new View.OnClickListener() {
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public void onClick(View v) {
             String data = null;
@@ -204,7 +208,7 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
                     spdValue = spdEditText.getText().toString();
 
                 }
-                if (dateTime.isChecked() == true) {
+                if (dateTime.isChecked()) {
                     formatTimeDate = df.format(getCal.getTime());
                 } else {
                     formatTimeDate = "";
@@ -247,24 +251,35 @@ public class DetailFragment extends Fragment implements TextView.OnEditorActionL
                     data = "/writeDisplay" + customBoard.createMessageSendFormat() + "//ST" + customBoard.getBSI() + "//TD" + formatTimeDate;
                     //DetailFragmentHelper.saveMessages(getContext(), priceBoard);
                 }
-                data = data.trim();
-                data = data.replaceAll("\\s+", " ");
-                for (int j = 1; j <= 8; j++) {
-                    if (j < 8) {
-                        if (data.contains("//M" + j)) {
-                            data = data.replace("//M" + (j + 1), " //M" + (j + 1));
-                        } else if (!data.contains("//M" + j)) {
-                            data = data + " //M" + j;
+                if (digitalBoard == null) {
+                    assert data != null;
+                    data = data.trim();
+                    data = data.replaceAll("\\s+", " ");
+                    for (int j = 1; j <= 8; j++) {
+                        if (j < 8) {
+                            if (data.contains("//M" + j)) {
+                                data = data.replace("//M" + (j + 1), " //M" + (j + 1));
+                            } else if (!data.contains("//M" + j)) {
+                                data = data + " //M" + j;
+                            }
                         }
                     }
+                } else {
+                    baseURL = "http://" + digitalBoard.getIpAddress();
+                    Log.v("URL", baseURL);
+                    digitalBoard.setBSI(brtEditText.getText().toString() + spdEditText.getText().toString() + invertValue);
+                    data = "/writeDisplay" + "//ST" + digitalBoard.getBSI() + "//TD" + formatTimeDate;
                 }
+
 
              /*   Connection postData= new Connection();
                 postData.ByPostMethod(baseURL,data);*/
 
                 HttpRequestUtil httpconnection = new HttpRequestUtil();
+                Log.v("URL", baseURL);
+                Log.v("DiplayData", data);
                 httpconnection.execute(baseURL, "POST " + data);
-                Snackbar.make(getView().findViewById(R.id.fragment_root), "Saving...", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(Objects.requireNonNull(getView()).findViewById(R.id.fragment_root), "Saving...", Snackbar.LENGTH_LONG).show();
 
                 //TODO Implement send
                 //Use the Connection.java class and the NetworkUtils.java classes

@@ -14,7 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HttpRequestUtil extends AsyncTask<String, Void, String> {
-    private final String USER_AGENT = "Mozilla/5.0";
+    private final String USER_AGENT = "EritDisplay/1.0";
 
     @Override
     protected String doInBackground(String... params) {
